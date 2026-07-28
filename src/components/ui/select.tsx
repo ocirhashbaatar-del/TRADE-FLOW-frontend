@@ -1,0 +1,8 @@
+import * as SelectPrimitive from '@radix-ui/react-select'
+import { Check, ChevronDown } from 'lucide-react'
+import { cn } from '@/utils/cn'
+export const Select = SelectPrimitive.Root
+export const SelectValue = SelectPrimitive.Value
+export function SelectTrigger({ className, children }: { className?: string; children: React.ReactNode }) { return <SelectPrimitive.Trigger className={cn('focus-ring flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900', className)}>{children}<SelectPrimitive.Icon><ChevronDown className="size-4 text-slate-400" /></SelectPrimitive.Icon></SelectPrimitive.Trigger> }
+export function SelectContent({ children }: { children: React.ReactNode }) { return <SelectPrimitive.Portal><SelectPrimitive.Content position="popper" sideOffset={6} className="z-50 min-w-[var(--radix-select-trigger-width)] rounded-xl border border-slate-200 bg-white p-1.5 shadow-float dark:border-slate-800 dark:bg-slate-900"><SelectPrimitive.Viewport>{children}</SelectPrimitive.Viewport></SelectPrimitive.Content></SelectPrimitive.Portal> }
+export function SelectItem({ value, children }: { value: string; children: React.ReactNode }) { return <SelectPrimitive.Item value={value} className="relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800"><span className="absolute left-2.5"><SelectPrimitive.ItemIndicator><Check className="size-4" /></SelectPrimitive.ItemIndicator></span><SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText></SelectPrimitive.Item> }

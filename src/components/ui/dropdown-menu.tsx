@@ -1,0 +1,9 @@
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+import { Check } from 'lucide-react'
+import { cn } from '@/utils/cn'
+export const DropdownMenu = DropdownMenuPrimitive.Root
+export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
+export const DropdownMenuSeparator = ({ className }: { className?: string }) => <DropdownMenuPrimitive.Separator className={cn('my-1 h-px bg-slate-200 dark:bg-slate-800', className)} />
+export function DropdownMenuContent({ className, children, align = 'end' }: { className?: string; children: React.ReactNode; align?: 'start' | 'center' | 'end' }) { return <DropdownMenuPrimitive.Portal><DropdownMenuPrimitive.Content align={align} sideOffset={8} className={cn('z-50 min-w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-float dark:border-slate-800 dark:bg-slate-900', className)}>{children}</DropdownMenuPrimitive.Content></DropdownMenuPrimitive.Portal> }
+export function DropdownMenuItem({ className, children, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>) { return <DropdownMenuPrimitive.Item className={cn('focus-ring flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800', className)} {...props}>{children}</DropdownMenuPrimitive.Item> }
+export function DropdownMenuCheckboxItem({ checked, children, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>) { return <DropdownMenuPrimitive.CheckboxItem checked={checked} className="relative flex cursor-pointer items-center rounded-lg py-2 pl-8 pr-3 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800" {...props}><span className="absolute left-2.5">{checked && <Check className="size-4" />}</span>{children}</DropdownMenuPrimitive.CheckboxItem> }

@@ -1,0 +1,8 @@
+import type { HTMLAttributes, TableHTMLAttributes } from 'react'
+import { cn } from '@/utils/cn'
+export const Table = ({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) => <div className="w-full overflow-auto scrollbar-thin"><table className={cn('w-full caption-bottom text-sm', className)} {...props}/></div>
+export const TableHeader = ({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) => <thead className={cn('[&_tr]:border-b [&_tr]:border-slate-200 dark:[&_tr]:border-slate-800', className)} {...props}/>
+export const TableBody = ({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) => <tbody className={cn('[&_tr:last-child]:border-0', className)} {...props}/>
+export const TableRow = ({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) => <tr className={cn('border-b border-slate-100 transition-colors hover:bg-slate-50/80 dark:border-slate-800 dark:hover:bg-slate-800/50', className)} {...props}/>
+export const TableHead = ({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => <th className={cn('h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-slate-500', className)} {...props}/>
+export const TableCell = ({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) => <td className={cn('px-4 py-3.5 align-middle text-slate-700 dark:text-slate-200', className)} {...props}/>

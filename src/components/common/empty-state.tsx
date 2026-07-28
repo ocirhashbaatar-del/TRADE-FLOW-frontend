@@ -1,0 +1,3 @@
+import { Inbox } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+export function EmptyState({ title = 'Nothing here yet', description = 'Create a new record or adjust your filters to get started.', action }: { title?: string; description?: string; action?: React.ReactNode }) { return <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center"><div className="grid size-14 place-items-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800"><Inbox className="size-6"/></div><h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">{title}</h3><p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">{description}</p><div className="mt-5">{action ?? <Button>Create record</Button>}</div></div> }

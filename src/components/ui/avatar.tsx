@@ -1,0 +1,2 @@
+import { cn } from '@/utils/cn'
+export function Avatar({ name, className }: { name: string; className?: string }) { const initials = name.split(' ').map((part) => part[0]).slice(0, 2).join(''); return <div className={cn('grid size-10 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 text-sm font-semibold text-white shadow-sm', className)} aria-label={name}>{initials}</div> }
