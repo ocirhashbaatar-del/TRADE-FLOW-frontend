@@ -20,23 +20,23 @@ export const orders: Order[] = [
 
 
 export const categories = [
-  { name: 'Industrial Automation', count: 128, icon: '⚙️' },
-  { name: 'Warehouse Equipment', count: 94, icon: '🏭' },
-  { name: 'IoT & Tracking', count: 156, icon: '📡' },
-  { name: 'Packaging', count: 212, icon: '📦' },
-  { name: 'Fleet Management', count: 86, icon: '🚚' },
-  { name: 'Safety & Compliance', count: 73, icon: '🛡️' },
+  { name: 'Industrial Automation', count: 128, icon: '' },
+  { name: 'Warehouse Equipment', count: 94, icon: '' },
+  { name: 'IoT & Tracking', count: 156, icon: '' },
+  { name: 'Packaging', count: 212, icon: '' },
+  { name: 'Fleet Management', count: 86, icon: '' },
+  { name: 'Safety & Compliance', count: 73, icon: '' },
 ]
 
 export const products: Product[] = [
-  { id: 'p-1', name: 'Precision Torque Controller', category: 'Industrial Automation', vendor: 'Atlas Components', price: 1290, compareAt: 1490, rating: 4.9, reviews: 128, stock: 42, featured: true, image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=1200&q=80', description: 'High-accuracy programmable torque controller with production-grade telemetry and configurable safety profiles.', tags: ['B2B', 'Automation', 'Certified'] },
-  { id: 'p-2', name: 'Modular Storage System', category: 'Warehouse Equipment', vendor: 'Nova Industrial', price: 780, rating: 4.7, reviews: 94, stock: 18, featured: true, image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80', description: 'Configurable warehouse storage system designed for efficient picking, labeling, and scalable inventory operations.', tags: ['Warehouse', 'Modular'] },
-  { id: 'p-3', name: 'Smart Pallet Sensor Kit', category: 'IoT & Tracking', vendor: 'Vertex Works', price: 460, rating: 4.8, reviews: 76, stock: 105, image: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?auto=format&fit=crop&w=1200&q=80', description: 'Real-time temperature, humidity, tilt, and geolocation monitoring for high-value freight.', tags: ['IoT', 'Tracking', 'Live data'] },
-  { id: 'p-4', name: 'Protective Shipping Cases', category: 'Packaging', vendor: 'Pacific Supply', price: 240, compareAt: 280, rating: 4.6, reviews: 61, stock: 230, image: 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=1200&q=80', description: 'Stackable, impact-resistant reusable shipping cases for sensitive industrial equipment.', tags: ['Packaging', 'Reusable'] },
-  { id: 'p-5', name: 'Fleet Route Tablet', category: 'Fleet Management', vendor: 'Aperture Systems', price: 920, rating: 4.8, reviews: 109, stock: 64, featured: true, image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=1200&q=80', description: 'Rugged fleet tablet with offline routing, proof-of-delivery workflows, and driver communication.', tags: ['Fleet', 'Rugged', 'GPS'] },
-  { id: 'p-6', name: 'Cold Chain Data Logger', category: 'IoT & Tracking', vendor: 'Northline Tech', price: 180, rating: 4.5, reviews: 44, stock: 9, image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', description: 'Compact reusable logger for audited temperature-sensitive supply chains.', tags: ['Cold chain', 'Compliance'] },
-  { id: 'p-7', name: 'Dock Safety Light System', category: 'Warehouse Equipment', vendor: 'SafePort', price: 540, rating: 4.7, reviews: 52, stock: 31, image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=80', description: 'High-visibility dock signaling system that improves loading coordination and safety.', tags: ['Safety', 'Dock'] },
-  { id: 'p-8', name: 'Recycled Transit Packaging', category: 'Packaging', vendor: 'GreenLoop', price: 96, rating: 4.6, reviews: 83, stock: 360, image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=1200&q=80', description: 'Durable recycled transit packaging for repeat B2B shipping cycles.', tags: ['Sustainable', 'Packaging'] },
+  { id: 'p-1', name: 'Precision Torque Controller', category: 'Industrial Automation', vendor: 'Atlas Components', price: 1290, compareAt: 1490, rating: 4.9, reviews: 128, stock: 42, featured: true, image: '/images/product-1.jpg', description: 'High-accuracy programmable torque controller with production-grade telemetry and configurable safety profiles.', tags: ['B2B', 'Automation', 'Certified'] },
+  { id: 'p-2', name: 'Modular Storage System', category: 'Warehouse Equipment', vendor: 'Nova Industrial', price: 780, rating: 4.7, reviews: 94, stock: 18, featured: true, image: '/images/product-2.jpg', description: 'Configurable warehouse storage system designed for efficient picking, labeling, and scalable inventory operations.', tags: ['Warehouse', 'Modular'] },
+  { id: 'p-3', name: 'Smart Pallet Sensor Kit', category: 'IoT & Tracking', vendor: 'Vertex Works', price: 460, rating: 4.8, reviews: 76, stock: 105, image: '/images/product-3.jpg', description: 'Real-time temperature, humidity, tilt, and geolocation monitoring for high-value freight.', tags: ['IoT', 'Tracking', 'Live data'] },
+  { id: 'p-4', name: 'Protective Shipping Cases', category: 'Packaging', vendor: 'Pacific Supply', price: 240, compareAt: 280, rating: 4.6, reviews: 61, stock: 230, image: '/images/product-4.jpg', description: 'Stackable, impact-resistant reusable shipping cases for sensitive industrial equipment.', tags: ['Packaging', 'Reusable'] },
+  { id: 'p-5', name: 'Fleet Route Tablet', category: 'Fleet Management', vendor: 'Aperture Systems', price: 920, rating: 4.8, reviews: 109, stock: 64, featured: true, image: '/images/product-5.jpg', description: 'Rugged fleet tablet with offline routing, proof-of-delivery workflows, and driver communication.', tags: ['Fleet', 'Rugged', 'GPS'] },
+  { id: 'p-6', name: 'Cold Chain Data Logger', category: 'IoT & Tracking', vendor: 'Northline Tech', price: 180, rating: 4.5, reviews: 44, stock: 9, image: '/images/product-6.jpg', description: 'Compact reusable logger for audited temperature-sensitive supply chains.', tags: ['Cold chain', 'Compliance'] },
+  { id: 'p-7', name: 'Dock Safety Light System', category: 'Warehouse Equipment', vendor: 'SafePort', price: 540, rating: 4.7, reviews: 52, stock: 31, image: '/images/product-7.jpg', description: 'High-visibility dock signaling system that improves loading coordination and safety.', tags: ['Safety', 'Dock'] },
+  { id: 'p-8', name: 'Recycled Transit Packaging', category: 'Packaging', vendor: 'GreenLoop', price: 96, rating: 4.6, reviews: 83, stock: 360, image: '/images/product-8.jpg', description: 'Durable recycled transit packaging for repeat B2B shipping cycles.', tags: ['Sustainable', 'Packaging'] },
 ]
 
 export const notifications: NotificationItem[] = [

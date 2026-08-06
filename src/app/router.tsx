@@ -1,93 +1,101 @@
 import { lazy } from 'react'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
-import { AuthLayout } from '@/layouts/AuthLayout'
 import { MarketplaceLayout } from '@/layouts/MarketplaceLayout'
-import { ForbiddenPage, FullPageLoading, NotFoundPage, ServerErrorPage, UnauthorizedPage } from '@/pages/system/SystemPages'
+import { NotFoundPage, ServerErrorPage } from '@/pages/system/SystemPages'
+import { AdminGuard } from '@/components/auth/AdminGuard'
+import { RoleGuard } from '@/components/auth/RoleGuard'
+import { GuestLanding } from '@/components/auth/GuestLanding'
 
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
-const DesignSystemPage = lazy(() => import('@/pages/DesignSystemPage'))
+const HomePage = lazy(() => import('@/pages/Home'))
+const ProductsPage = lazy(() => import('@/pages/Products'))
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetail'))
+const CartPage = lazy(() => import('@/pages/Cart'))
+const CheckoutPage = lazy(() => import('@/pages/Checkout'))
+const ProfilePage = lazy(() => import('@/pages/Profile'))
+const OrdersPage = lazy(() => import('@/pages/Orders'))
+const RolesPage = lazy(() => import('@/pages/Roles'))
+const B2BPortalPage = lazy(() => import('@/pages/B2BPortal'))
+const TransportDashboardPage = lazy(() => import('@/pages/TransportDashboard'))
+const InventoryDashboardPage = lazy(() => import('@/pages/InventoryDashboard'))
+const SupplierDashboardPage = lazy(() => import('@/pages/SupplierDashboard'))
+const AccountingDashboardPage = lazy(() => import('@/pages/AccountingDashboard'))
+
+const AdminDashboard = lazy(() => import('@/admin/Dashboard'))
+const AdminProducts = lazy(() => import('@/admin/Products'))
+const AdminOrders = lazy(() => import('@/admin/Orders'))
+const AdminUsers = lazy(() => import('@/admin/Users'))
+const AdminRoles = lazy(() => import('@/admin/Roles'))
+const AdminSettings = lazy(() => import('@/admin/Settings'))
+const AdminOperations = lazy(() => import('@/admin/Operations'))
+const AdminCatalog = lazy(() => import('@/admin/Catalog'))
+const PlatformAdmin = lazy(() => import('@/admin/Platform'))
+const ManualOrder = lazy(() => import('@/admin/ManualOrder'))
+const Fulfillment = lazy(() => import('@/admin/Fulfillment'))
+const Returns = lazy(() => import('@/admin/Returns'))
+const Payments = lazy(() => import('@/admin/Payments'))
+const Pricing = lazy(() => import('@/admin/Pricing'))
+
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
-const AuthUtilityPage = lazy(() => import('@/pages/auth/AuthUtilityPage').then((module) => ({ default: module.AuthUtilityPage })))
-const SelectionPage = lazy(() => import('@/pages/auth/AuthUtilityPage').then((module) => ({ default: module.SelectionPage })))
-const EnterpriseModulePage = lazy(() => import('@/pages/enterprise/EnterpriseModulePage'))
-const AnalyticsPage = lazy(() => import('@/pages/enterprise/AnalyticsPage'))
-const SettingsPage = lazy(() => import('@/pages/enterprise/SettingsPage'))
-const NotificationsPage = lazy(() => import('@/pages/enterprise/NotificationsPage'))
-const OrderDetailPage = lazy(() => import('@/pages/enterprise/OrderDetailPage'))
-
-const marketplacePages = () => import('@/pages/marketplace/MarketplacePages')
-const MarketplacePage = lazy(() => marketplacePages().then((module) => ({ default: module.MarketplacePage })))
-const MarketplaceLandingPage = lazy(() => marketplacePages().then((module) => ({ default: module.MarketplaceLandingPage })))
-const CategoriesPage = lazy(() => marketplacePages().then((module) => ({ default: module.CategoriesPage })))
-const SearchPage = lazy(() => marketplacePages().then((module) => ({ default: module.SearchPage })))
-const ProductDetailsPage = lazy(() => marketplacePages().then((module) => ({ default: module.ProductDetailsPage })))
-const WishlistPage = lazy(() => marketplacePages().then((module) => ({ default: module.WishlistPage })))
-const CartPage = lazy(() => marketplacePages().then((module) => ({ default: module.CartPage })))
-const CheckoutPage = lazy(() => marketplacePages().then((module) => ({ default: module.CheckoutPage })))
-const OrderSuccessPage = lazy(() => marketplacePages().then((module) => ({ default: module.OrderSuccessPage })))
-const OrderHistoryPage = lazy(() => marketplacePages().then((module) => ({ default: module.OrderHistoryPage })))
-const ReviewsPage = lazy(() => marketplacePages().then((module) => ({ default: module.ReviewsPage })))
-const RecommendationsPage = lazy(() => marketplacePages().then((module) => ({ default: module.RecommendationsPage })))
-const VendorStorePage = lazy(() => marketplacePages().then((module) => ({ default: module.VendorStorePage })))
-
-const enterpriseModules = ['inventory', 'warehouses', 'suppliers', 'purchase-orders', 'finance', 'customers', 'vendors', 'shipping', 'delivery', 'returns', 'refunds', 'reports', 'billing'] as const
+const OAuthCallbackPage = lazy(() => import('@/pages/auth/OAuthCallbackPage'))
+const AcceptInvitePage = lazy(() => import('@/pages/auth/AcceptInvitePage'))
 
 export const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/dashboard" replace /> },
+  {
+    path: '/',
+    element: <MarketplaceLayout />,
+    errorElement: <ServerErrorPage />,
+    children: [
+      { index: true, element: <GuestLanding><HomePage /></GuestLanding> },
+      { path: 'products', element: <ProductsPage /> },
+      { path: 'products/:id', element: <ProductDetailPage /> },
+      { path: 'cart', element: <CartPage /> },
+      { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'orders', element: <OrdersPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+      { path: 'roles', element: <RolesPage /> },
+      { path: 'roles/:slug', element: <RolesPage /> },
+      { path: 'b2b', element: <B2BPortalPage /> },
+      { path: 'employee', element: <RoleGuard roles={['Manager', 'Employee']}><InventoryDashboardPage /></RoleGuard> },
+      { path: 'supplier', element: <RoleGuard roles={['Vendor']}><SupplierDashboardPage /></RoleGuard> },
+      { path: 'transport', element: <RoleGuard roles={['Transporter']}><TransportDashboardPage /></RoleGuard> },
+      { path: 'accounting', element: <RoleGuard roles={['Accountant']}><AccountingDashboardPage /></RoleGuard> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminGuard><AppLayout /></AdminGuard>,
+    errorElement: <ServerErrorPage />,
+    children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: 'dashboard', element: <AdminDashboard /> },
+      { path: 'products', element: <AdminProducts /> },
+      { path: 'orders', element: <AdminOrders /> },
+      { path: 'users', element: <AdminUsers /> },
+      { path: 'roles', element: <AdminRoles /> },
+      { path: 'settings', element: <AdminSettings /> },
+      { path: 'operations/pricing', element: <Pricing /> },
+      { path: 'operations/:module', element: <AdminOperations /> },
+      { path: 'catalog', element: <AdminCatalog /> },
+      { path: 'platform', element: <PlatformAdmin /> },
+      { path: 'manual-order', element: <ManualOrder /> },
+      { path: 'fulfillment', element: <Fulfillment /> },
+      { path: 'returns', element: <Returns /> },
+      { path: 'payments', element: <Payments /> },
+    ],
+  },
   {
     path: '/auth',
-    element: <AuthLayout />,
+    element: <MarketplaceLayout />,
     errorElement: <ServerErrorPage />,
     children: [
       { index: true, element: <Navigate to="login" replace /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
-      { path: 'forgot-password', element: <AuthUtilityPage type="forgot-password" /> },
-      { path: 'reset-password', element: <AuthUtilityPage type="reset-password" /> },
-      { path: 'email-verification', element: <AuthUtilityPage type="email-verification" /> },
-      { path: 'otp-verification', element: <AuthUtilityPage type="otp-verification" /> },
-      { path: 'role-selection', element: <SelectionPage mode="role" /> },
-      { path: 'tenant-selection', element: <SelectionPage mode="tenant" /> },
+      { path: 'callback', element: <OAuthCallbackPage /> },
+      { path: 'accept-invite', element: <AcceptInvitePage /> },
     ],
   },
-  {
-    path: '/marketplace',
-    element: <MarketplaceLayout />,
-    errorElement: <ServerErrorPage />,
-    children: [
-      { index: true, element: <MarketplacePage /> },
-      { path: 'landing', element: <MarketplaceLandingPage /> },
-      { path: 'categories', element: <CategoriesPage /> },
-      { path: 'search', element: <SearchPage /> },
-      { path: 'products/:id', element: <ProductDetailsPage /> },
-      { path: 'wishlist', element: <WishlistPage /> },
-      { path: 'cart', element: <CartPage /> },
-      { path: 'checkout', element: <CheckoutPage /> },
-      { path: 'order-success', element: <OrderSuccessPage /> },
-      { path: 'orders', element: <OrderHistoryPage /> },
-      { path: 'reviews', element: <ReviewsPage /> },
-      { path: 'recommendations', element: <RecommendationsPage /> },
-      { path: 'vendor/:slug', element: <VendorStorePage /> },
-    ],
-  },
-  {
-    element: <AppLayout />,
-    errorElement: <ServerErrorPage />,
-    children: [
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/design-system', element: <DesignSystemPage /> },
-      { path: '/analytics', element: <AnalyticsPage /> },
-      { path: '/settings', element: <SettingsPage /> },
-      { path: '/notifications', element: <NotificationsPage /> },
-      { path: '/orders/:id', element: <OrderDetailPage /> },
-      ...enterpriseModules.map((module) => ({ path: `/${module}`, element: <EnterpriseModulePage module={module} /> })),
-    ],
-  },
-  { path: '/unauthorized', element: <UnauthorizedPage /> },
-  { path: '/forbidden', element: <ForbiddenPage /> },
-  { path: '/500', element: <ServerErrorPage /> },
-  { path: '/loading', element: <FullPageLoading /> },
   { path: '*', element: <NotFoundPage /> },
 ])

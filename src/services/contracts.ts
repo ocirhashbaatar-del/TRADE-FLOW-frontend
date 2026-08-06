@@ -12,6 +12,8 @@ export interface DashboardSnapshot {
 export interface AuthRepository {
   login(input: { email: string; password: string }): Promise<AuthResponse>
   register(input: { name: string; email: string; password: string }): Promise<AuthResponse>
+  googleLogin(credential: string): Promise<AuthResponse>
+  oauthExchange(code: string): Promise<AuthResponse>
   currentUser(): Promise<User | null>
   logout(): Promise<void>
 }

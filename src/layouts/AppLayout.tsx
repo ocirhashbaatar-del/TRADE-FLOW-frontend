@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { ChevronDown, Command, LogOut, Menu, Moon, Search, Settings, Sun } from 'lucide-react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { ArrowLeft, BarChart3, ChevronDown, Handshake, LayoutDashboard, LogOut, Menu, Moon, Search, Shield, Sun, Users } from 'lucide-react'
 import { navigation } from '@/app/navigation'
 import { AppLogo } from '@/components/common/app-logo'
 import { Breadcrumbs } from '@/components/common/breadcrumbs'
@@ -24,8 +24,9 @@ import { cn } from '@/utils/cn'
 function SidebarContent() {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 items-center px-5">
-        <AppLogo />
+      <div className="border-b border-slate-100 px-4 py-4 dark:border-slate-800">
+        <Link to="/" className="mb-4 flex w-fit items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300" aria-label="Marketplace руу буцах"><ArrowLeft className="size-4" />Back</Link>
+        <Link to="/admin/dashboard" aria-label="Admin dashboard"><AppLogo /></Link>
       </div>
       <nav aria-label="Primary navigation" className="scrollbar-thin flex-1 overflow-y-auto px-3 pb-5">
         {navigation.map((section) => (
@@ -121,22 +122,23 @@ export function AppLayout() {
   const { toggleTheme, resolvedTheme } = useTheme()
   const { user, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <a href="#main-content" className="skip-link">Skip to main content</a>
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-slate-200 bg-white/95 backdrop-blur xl:block dark:border-slate-800 dark:bg-slate-900/95">
+return (
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-stone-950">
+      <a href="#main-content" className="skip-link">Үндсэн хэсэг рүү очих</a>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-stone-200 bg-white/95 backdrop-blur xl:block dark:border-stone-800 dark:bg-stone-900/95">
         <SidebarContent />
       </aside>
       <div className="xl:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8 dark:border-slate-800 dark:bg-slate-950/80">
+        <header className="sticky top-0 z-30 flex h-16 items-center border-b border-stone-200/80 bg-white/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8 dark:border-stone-800 dark:bg-stone-950/80">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="mr-2 xl:hidden" aria-label="Open navigation menu">
+              <Button variant="ghost" size="icon" className="mr-2 xl:hidden" aria-label="Навигацийн цэс нээх">
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0" title="Navigation">
+            <SheetContent side="left" className="p-0" title="Навигац">
               <SidebarContent />
             </SheetContent>
           </Sheet>
@@ -146,34 +148,34 @@ export function AppLayout() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={resolvedTheme === 'dark' ? 'Гэрэлт горим' : 'Харанхуй горим'}
             >
               {resolvedTheme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
             </Button>
             <NotificationCenter />
-            <div className="mx-1 hidden h-7 w-px bg-slate-200 sm:block dark:bg-slate-800" />
+            <div className="mx-1 hidden h-7 w-px bg-stone-200 sm:block dark:bg-stone-800" />
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="focus-ring flex items-center gap-2 rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800"
-                aria-label="Open user menu"
+                className="focus-ring flex items-center gap-2 rounded-xl p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
+                aria-label="Хэрэглэгчийн цэс нээх"
               >
-                <Avatar name={user?.name ?? 'Alex Morgan'} className="size-8 text-xs" />
+                <Avatar name={user?.name ?? 'Алекс Морган'} className="size-8 text-xs" />
                 <div className="hidden text-left md:block">
-                  <div className="text-xs font-semibold text-slate-900 dark:text-white">{user?.name ?? 'Alex Morgan'}</div>
-                  <div className="text-[10px] text-slate-400">{user?.role ?? 'Admin'}</div>
+                  <div className="text-xs font-semibold text-stone-900 dark:text-white">{user?.name ?? 'Алекс Морган'}</div>
+                  <div className="text-[10px] text-stone-400">{user?.role ?? 'Админ'}</div>
                 </div>
-                <ChevronDown className="hidden size-3.5 text-slate-400 md:block" aria-hidden="true" />
+                <ChevronDown className="hidden size-3.5 text-stone-400 md:block" aria-hidden="true" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Settings className="size-4" />Account settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Command className="size-4" />Keyboard shortcuts
-                </DropdownMenuItem>
+              <DropdownMenuContent className="min-w-64 p-2">
+                <div className="px-3 pb-2 pt-1"><div className="text-sm font-semibold text-stone-900 dark:text-white">Админы удирдлага</div><div className="mt-0.5 text-xs text-stone-400">Хяналт ба системийн тохиргоо</div></div>
+                <DropdownMenuItem onSelect={() => navigate('/admin/dashboard')}><LayoutDashboard className="size-4 text-brand-600" />Admin dashboard</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate('/admin/users')}><Users className="size-4 text-brand-600" />Хэрэглэгчдийн хяналт</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate('/admin/roles')}><Shield className="size-4 text-brand-600" />Role болон эрх өгөх</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate('/admin/dashboard?view=reports')}><BarChart3 className="size-4 text-brand-600" />Тайлан, тооцоо</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate('/admin/users?view=partners')}><Handshake className="size-4 text-brand-600" />Хамтран ажиллах хүмүүс</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => void logout()} className="text-red-600">
-                  <LogOut className="size-4" />Sign out
+                  <LogOut className="size-4" />Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -183,12 +185,12 @@ export function AppLayout() {
           <Breadcrumbs />
           <Outlet />
         </main>
-        <footer className="mx-auto flex max-w-[1600px] flex-col gap-2 border-t border-slate-200 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-slate-800">
-          <span>© 2026 TradeFlow. Enterprise supply chain workspace.</span>
+        <footer className="mx-auto flex max-w-[1600px] flex-col gap-2 border-t border-stone-200 px-4 py-5 text-xs text-stone-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-stone-800">
+          <span>© 2026 TradeFlow. Аж ахуйн нэгжийн удирдлагын систем.</span>
           <div className="flex gap-4">
-            <a href="#privacy" className="hover:text-slate-700 dark:hover:text-white">Privacy</a>
-            <a href="#security" className="hover:text-slate-700 dark:hover:text-white">Security</a>
-            <a href="#status" className="hover:text-slate-700 dark:hover:text-white">Status</a>
+            <a href="#privacy" className="hover:text-stone-700 dark:hover:text-white">Нууцлал</a>
+            <a href="#security" className="hover:text-stone-700 dark:hover:text-white">Аюулгүй байдал</a>
+            <a href="#status" className="hover:text-stone-700 dark:hover:text-white">Статус</a>
           </div>
         </footer>
       </div>

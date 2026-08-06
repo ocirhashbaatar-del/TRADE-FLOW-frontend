@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { NotificationProvider } from '@/contexts/notification-context'
 import { RealtimeProvider } from '@/contexts/realtime-context'
 import { ThemeProvider } from '@/contexts/theme-context'
+import { CartProvider } from '@/contexts/cart-context'
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -24,7 +25,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <AuthProvider>
           <RealtimeProvider>
-            <NotificationProvider>{children}</NotificationProvider>
+            <NotificationProvider><CartProvider>{children}</CartProvider></NotificationProvider>
           </RealtimeProvider>
         </AuthProvider>
       </ThemeProvider>

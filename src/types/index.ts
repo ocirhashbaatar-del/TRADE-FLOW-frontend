@@ -77,13 +77,17 @@ export interface ModuleRecord {
   updatedAt: string
 }
 
+export type UserRole = 'Admin' | 'Manager' | 'Employee' | 'Vendor' | 'Transporter' | 'Accountant' | 'Customer'
+
 export interface User {
   id: string
   name: string
   email: string
-  role: 'Admin' | 'Manager' | 'Vendor' | 'Analyst'
+  role: UserRole
   tenant: string
   avatar?: string
+  phone?: string
+  platformAdmin?: boolean
 }
 
 export interface AuthResponse {

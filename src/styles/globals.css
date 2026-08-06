@@ -14,53 +14,148 @@
   --color-brand-700: #1d4ed8;
   --color-brand-800: #1e40af;
   --color-brand-900: #1e3a8a;
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1rem;
-  --shadow-soft: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
-  --shadow-float: 0 12px 36px rgba(15, 23, 42, .12);
+  --color-highlight-50: #fffbeb;
+  --color-highlight-100: #fef3c7;
+  --color-highlight-200: #fde68a;
+  --color-highlight-300: #fcd34d;
+  --color-highlight-400: #fbbf24;
+  --color-highlight-500: #f59e0b;
+  --color-highlight-600: #d97706;
+  --color-highlight-700: #b45309;
+  --color-highlight-800: #92400e;
+  --color-highlight-900: #78350f;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, .04), 0 8px 24px rgba(0, 0, 0, .06);
+  --shadow-float: 0 12px 40px rgba(0, 0, 0, .1);
 }
 
 :root {
   color-scheme: light;
   font-family: var(--font-sans);
-  background: #f8fafc;
-  color: #0f172a;
+  background: #fafaf9;
+  color: #111827;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --surface: 255 255 255;
-  --surface-subtle: 248 250 252;
-  --border: 226 232 240;
-  --text: 15 23 42;
-  --text-muted: 100 116 139;
+  --surface-subtle: 250 250 249;
+  --border: 231 229 228;
+  --text: 17 24 39;
+  --text-muted: 120 113 108;
 }
 
 .dark {
   color-scheme: dark;
-  --surface: 15 23 42;
-  --surface-subtle: 2 6 23;
-  --border: 51 65 85;
-  --text: 241 245 249;
-  --text-muted: 148 163 184;
+  --surface: 17 24 39;
+  --surface-subtle: 12 12 16;
+  --border: 41 37 36;
+  --text: 245 245 244;
+  --text-muted: 168 162 158;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 html:focus-within { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: rgb(var(--surface-subtle)); color: rgb(var(--text)); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #fafaf9; color: #111827; }
+
+/*
+ * The interface was visually tuned at 125% browser zoom. On common wide
+ * desktop viewports, increase the CSS scale so 100% keeps the same density.
+ * Smaller desktop, tablet, and mobile layouts retain their normal scale.
+ */
+@media (min-width: 1700px) {
+  html { font-size: 20px; }
+  [class~="max-w-[1380px]"] { max-width: 1725px; }
+  [class~="max-w-[1240px]"] { max-width: 1550px; }
+  [class~="max-w-[1200px]"] { max-width: 1500px; }
+}
+
+.dark body { background: #0c0c10; color: #f5f5f4; }
 button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: #bfdbfe; color: #172554; }
 
-@layer components {
-  .surface { @apply border border-slate-200/80 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900; }
-  .focus-ring { @apply outline-none ring-offset-2 ring-offset-white focus-visible:ring-2 focus-visible:ring-brand-500 dark:ring-offset-slate-950; }
-  .page-container { @apply mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7; }
-  .text-balance { text-wrap: balance; }
-  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
-  .skip-link { @apply fixed left-4 top-3 z-[100] -translate-y-20 rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-float transition-transform focus:translate-y-0 dark:bg-white dark:text-slate-950; }
+/* Marketplace landing cards use explicit radii so their shape stays consistent. */
+.marketplace-home main > section:nth-child(1) > div {
+  border: 2px solid #5b3a29 !important;
+  border-radius: 34px !important;
 }
 
+.marketplace-home main > section:nth-child(2) a {
+  border-color: #5b3a29 !important;
+  border-radius: 30px !important;
+}
+
+.marketplace-home main > section:nth-child(3) [class*="border-white"] {
+  border-color: #5b3a29 !important;
+  border-radius: 28px !important;
+}
+
+.marketplace-home main > section:nth-child(4) article {
+  border-color: #5b3a29 !important;
+  border-radius: 32px !important;
+}
+
+/* Warm marketplace palette for the light theme; dark mode keeps emerald accents. */
+:root:not(.dark) .marketplace-home .text-emerald-300,
+:root:not(.dark) .marketplace-home .text-emerald-400,
+:root:not(.dark) .marketplace-home .text-emerald-500,
+:root:not(.dark) .marketplace-home .text-emerald-600,
+:root:not(.dark) .marketplace-home .text-emerald-800 { color: #d97706 !important; }
+:root:not(.dark) .marketplace-home .bg-emerald-100 { background-color: #fef3c7 !important; }
+:root:not(.dark) .marketplace-home .bg-emerald-400,
+:root:not(.dark) .marketplace-home .bg-emerald-500 { background-color: #f59e0b !important; }
+:root:not(.dark) .marketplace-home .border-emerald-200,
+:root:not(.dark) .marketplace-home .border-emerald-300 { border-color: #fcd34d !important; }
+
+/* Landing-page scroll choreography. The view timeline keeps the movement tied
+ * to the visitor's scroll instead of playing everything on initial load. */
+@supports (animation-timeline: view()) {
+  .marketplace-home main > section {
+    animation: marketplace-section-reveal both cubic-bezier(.22, 1, .36, 1);
+    animation-timeline: view();
+    animation-range: entry 5% cover 30%;
+    transform-origin: 50% 100%;
+    will-change: transform, opacity, filter;
+  }
+
+  .marketplace-home main > section:nth-child(even) {
+    animation-name: marketplace-section-reveal-alt;
+  }
+
+  .marketplace-home main > section:nth-child(2) a,
+  .marketplace-home main > section:nth-child(4) article {
+    animation: marketplace-card-reveal both cubic-bezier(.22, 1, .36, 1);
+    animation-timeline: view();
+    animation-range: entry 2% cover 22%;
+  }
+}
+
+@keyframes marketplace-section-reveal {
+  from { opacity: 0; filter: blur(8px); transform: translate3d(0, 72px, 0) scale(.975); }
+  to { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes marketplace-section-reveal-alt {
+  from { opacity: 0; filter: blur(8px); transform: translate3d(-42px, 64px, 0) scale(.98); }
+  to { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes marketplace-card-reveal {
+  from { opacity: 0; transform: translate3d(0, 42px, 0) scale(.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@layer components {
+  .surface { @apply rounded-2xl border border-stone-200/70 bg-white shadow-soft dark:border-stone-800 dark:bg-stone-900; }
+  .focus-ring { @apply outline-none ring-offset-2 ring-offset-white focus-visible:ring-2 focus-visible:ring-brand-500 dark:ring-offset-stone-950; }
+  .page-container { @apply mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7; }
+  .text-balance { text-wrap: balance; }
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #d6d3d1 transparent; }
+  .skip-link { @apply fixed left-4 top-3 z-[100] -translate-y-20 rounded-xl bg-stone-950 px-4 py-2 text-sm font-semibold text-white shadow-float transition-transform focus:translate-y-0 dark:bg-white dark:text-stone-950; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html:focus-within { scroll-behavior: auto; }
@@ -70,4 +165,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .marketplace-home main > section,
+  .marketplace-home main > section a,
+  .marketplace-home main > section article {
+    animation: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
+

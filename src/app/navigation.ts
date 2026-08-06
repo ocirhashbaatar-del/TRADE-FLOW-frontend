@@ -1,20 +1,27 @@
-import { BarChart3, Bell, Boxes, Building2, CircleDollarSign, ClipboardList, CreditCard, FileBarChart, Gauge, LayoutDashboard, PackageCheck, RotateCcw, Settings, ShoppingBag, Store, Truck, Undo2, Users, Warehouse } from 'lucide-react'
+import { BarChart3, Boxes, CircleDollarSign, LayoutDashboard, Package, Settings, Shield, ShoppingBag, Truck, Users } from 'lucide-react'
 
 export const navigation = [
-  { label: 'Ерөнхий', items: [{ title: 'Хянах самбар', href: '/dashboard', icon: LayoutDashboard }] },
-  { label: 'Үйл ажиллагаа', items: [
-    { title: 'Бараа материал', href: '/inventory', icon: Boxes }, { title: 'Агуулах', href: '/warehouses', icon: Warehouse },
-    { title: 'Нийлүүлэгчид', href: '/suppliers', icon: Building2 }, { title: 'Худалдан авах захиалга', href: '/purchase-orders', icon: ClipboardList },
-    { title: 'Тээвэрлэлт', href: '/shipping', icon: Truck }, { title: 'Хүргэлт', href: '/delivery', icon: PackageCheck },
-    { title: 'Буцаалт', href: '/returns', icon: RotateCcw }, { title: 'Буцаан олголт', href: '/refunds', icon: Undo2 },
-  ]},
-  { label: 'Худалдаа', items: [
-    { title: 'Зах зээл', href: '/marketplace', icon: Store }, { title: 'Харилцагчид', href: '/customers', icon: Users },
-    { title: 'Борлуулагчид', href: '/vendors', icon: ShoppingBag }, { title: 'Санхүү', href: '/finance', icon: CircleDollarSign },
-  ]},
-  { label: 'Шинжилгээ', items: [
-    { title: 'Аналитик', href: '/analytics', icon: BarChart3 }, { title: 'Тайлан', href: '/reports', icon: FileBarChart },
-    { title: 'Мэдэгдэл', href: '/notifications', icon: Bell },
-  ]},
-  { label: 'Систем', items: [{ title: 'Дизайны систем', href: '/design-system', icon: Gauge }, { title: 'Тохиргоо', href: '/settings', icon: Settings }, { title: 'Төлбөр тооцоо', href: '/billing', icon: CreditCard }] },
+  { label: 'Үндсэн', items: [{ title: 'Хяналтын самбар', href: '/admin/dashboard', icon: LayoutDashboard }] },
+  { label: 'Каталог ба худалдаа', items: [
+    { title: 'Каталог, ангилал, хувилбар', href: '/admin/catalog', icon: Boxes },
+    { title: 'Бараа', href: '/admin/products', icon: Package },
+    { title: 'Захиалга', href: '/admin/orders', icon: ShoppingBag },
+    { title: 'Manual / B2B захиалга', href: '/admin/manual-order', icon: ShoppingBag },
+    { title: 'Үнэ ба урамшуулал', href: '/admin/operations/pricing', icon: CircleDollarSign },
+  ] },
+  { label: 'SCM модулиуд', items: [
+    { title: 'Агуулах ба нөөц', href: '/admin/operations/inventory', icon: Boxes },
+    { title: 'Нийлүүлэгч ба PO', href: '/admin/operations/procurement', icon: Truck },
+    { title: 'Picking / Packing', href: '/admin/fulfillment', icon: Package },
+    { title: 'Буцаалтын хүсэлт', href: '/admin/returns', icon: Truck },
+    { title: 'OTP / QPay / E-barimt', href: '/admin/payments', icon: CircleDollarSign },
+    { title: 'Санхүү ба авлага', href: '/admin/operations/invoices', icon: CircleDollarSign },
+    { title: 'Бодит тайлан', href: '/admin/operations/reports', icon: BarChart3 },
+  ] },
+  { label: 'Удирдлага', items: [
+    { title: 'Ажилтан ба урилга', href: '/admin/users', icon: Users },
+    { title: 'RBAC эрх', href: '/admin/roles', icon: Shield },
+    { title: 'Tenant branding / Super Admin', href: '/admin/platform', icon: Settings },
+    { title: 'Тохиргоо', href: '/admin/settings', icon: Settings },
+  ] },
 ]

@@ -1,6 +1,6 @@
 export const endpoints = {
-  auth: { login: '/auth/login', register: '/auth/register', me: '/auth/me' },
-  dashboard: '/dashboard',
+  auth: { login: '/auth/login', register: '/auth/register', google: '/auth/oauth/google', oauthExchange: '/auth/oauth/exchange', me: '/auth/me' },
+  dashboard: '/reports/dashboard',
   products: '/products',
   categories: '/categories',
   orders: '/orders',
