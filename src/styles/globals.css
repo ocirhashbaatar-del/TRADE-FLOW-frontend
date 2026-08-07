@@ -175,3 +175,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
   }
 }
 
+@media (max-width: 639px) {
+  .marketplace-home main > section:first-of-type img {
+    object-position: 65% center;
+  }
+  /* Keep the landing categories scannable instead of one oversized card per row. */
+  .marketplace-home main > section:nth-of-type(2) > div:last-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+  }
+  .marketplace-home main > section:nth-of-type(2) > div:last-child > a {
+    min-height: 9.5rem;
+    border-radius: 1.25rem;
+  }
+  .marketplace-home main > section:nth-of-type(2) > div:last-child > a > div:last-child {
+    min-height: 9.5rem;
+    padding: .875rem;
+  }
+}
+
