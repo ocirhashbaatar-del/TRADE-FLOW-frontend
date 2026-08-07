@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/auth-context'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
+import { apiClient } from '@/api/client'
 
 const schema = z.object({
   email: z.email('Имэйл хаягаа зөв оруулна уу'),
@@ -22,6 +23,10 @@ export default function LoginPage() {
   usePageTitle('Нэвтрэх — FreshFlow')
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState('')
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [challengeId, setChallengeId] = useState('')
+  const [phoneLoading, setPhoneLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -38,6 +43,13 @@ export default function LoginPage() {
   const submit = async (values: FormValues) => {
     setAuthError('')
     try { await login(values); finishLogin() } catch { setAuthError('Нэвтрэхэд алдаа гарлаа. Имэйл болон нууц үгээ шалгана уу.') }
+  }
+  const phoneLogin = async () => {
+    setPhoneLoading(true); setAuthError('')
+    try {
+      if (!challengeId) { const result = (await apiClient.post<{ challengeId: string; devCode?: string }>('/auth/phone/request', { phone })).data; setChallengeId(result.challengeId); if (result.devCode) setOtp(result.devCode) }
+      else { const result = (await apiClient.post<{ token: string; refreshToken: string; user: unknown }>('/auth/phone/verify', { challengeId, code: otp })).data; localStorage.setItem('tradeflow-token', result.token); localStorage.setItem('tradeflow-refresh-token', result.refreshToken); localStorage.setItem('tradeflow-user', JSON.stringify(result.user)); window.dispatchEvent(new Event('tradeflow-auth-changed')); finishLogin() }
+    } catch (error: any) { setAuthError(error?.response?.data?.message ?? 'Утасны OTP нэвтрэлт амжилтгүй.') } finally { setPhoneLoading(false) }
   }
 
   return (
@@ -71,6 +83,7 @@ export default function LoginPage() {
             {authError && <div className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{authError}</div>}
             <div className="relative my-6"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-white/10" /></div><div className="relative flex justify-center"><span className="bg-white px-4 text-xs font-semibold text-slate-400 dark:bg-[#211a12]">эсвэл</span></div></div>
             <OAuthButtons />
+            <div className="mt-5 rounded-2xl border p-4"><div className="text-sm font-bold">Утасны OTP нэвтрэлт</div><div className="mt-3 flex gap-2"><Input value={challengeId ? otp : phone} onChange={(event) => challengeId ? setOtp(event.target.value) : setPhone(event.target.value)} placeholder={challengeId ? '6 оронтой OTP' : '99112233'} /><Button type="button" loading={phoneLoading} onClick={phoneLogin}>{challengeId ? 'Нэвтрэх' : 'OTP авах'}</Button></div>{challengeId && <button className="mt-2 text-xs text-orange-600" onClick={() => { setChallengeId(''); setOtp('') }}>Дугаар солих</button>}</div>
             <p className="mt-7 text-center text-sm text-slate-500">Шинэ хэрэглэгч үү? <Link to="/auth/register" className="font-bold text-orange-600 hover:text-orange-700">Бүртгэл үүсгэх</Link></p>
           </div>
         </main>

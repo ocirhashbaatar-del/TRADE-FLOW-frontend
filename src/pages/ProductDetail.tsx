@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Check, Heart, Minus, PackageCheck, Plus, ShieldCheck, ShoppingCart, Star, Store, Truck } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 import { repositories } from '@/services/repositories'
 import { ProductCard } from '@/components/ProductCard'
@@ -14,6 +14,8 @@ import { useCart } from '@/contexts/cart-context'
 
 export default function ProductDetail() {
   const { id = 'p-1' } = useParams()
+  const [searchParams] = useSearchParams()
+  const channel = searchParams.get('channel') === 'B2B' ? 'B2B' : 'B2C'
   const [qty, setQty] = useState(1)
   const { addItem, savedProductIds: favorites, toggleSaved: toggleFavorite } = useCart()
   const [added, setAdded] = useState(false)
@@ -25,8 +27,8 @@ export default function ProductDetail() {
   }
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ['product', id],
-    queryFn: () => repositories.marketplace.getProduct(id),
+    queryKey: ['product', id, qty, channel],
+    queryFn: () => repositories.marketplace.getProduct(id, qty, channel),
   })
 
   const { data: catalog = [] } = useQuery({

@@ -9,8 +9,9 @@ import { Card } from '@/components/ui/card'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { currency } from '@/utils/format'
 
-type ApiOrder = { id: string; orderNumber: string; status: 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'; total: number; createdAt: string; items: Array<{ id: string; quantity: number; product: { id: string; name: string; image: string } }> }
-const labels = { PENDING: 'Хүлээгдэж байна', PAID: 'Төлөгдсөн', PROCESSING: 'Бэлтгэж байна', SHIPPED: 'Хүргэж өгөх гэж байна', DELIVERED: 'Хүргэж өгсөн', CANCELLED: 'Цуцлагдсан' } as const
+type OrderStatus = 'PENDING' | 'PAID' | 'CONFIRMED' | 'PROCESSING' | 'READY' | 'PARTIALLY_SHIPPED' | 'SHIPPED' | 'PARTIALLY_DELIVERED' | 'DELIVERED' | 'RETURNED' | 'CANCELLED'
+type ApiOrder = { id: string; orderNumber: string; status: OrderStatus; total: number; createdAt: string; items: Array<{ id: string; quantity: number; shippedQuantity: number; backorderedQuantity: number; returnedQuantity: number; appliedPriceSource: string; product: { id: string; name: string; image: string } }> }
+const labels: Record<OrderStatus, string> = { PENDING: 'Хүлээгдэж байна', PAID: 'Төлөгдсөн', CONFIRMED: 'Баталгаажсан', PROCESSING: 'Бэлтгэж байна', READY: 'Ачилтад бэлэн', PARTIALLY_SHIPPED: 'Хэсэгчлэн ачсан', SHIPPED: 'Хүргэлтэд гарсан', PARTIALLY_DELIVERED: 'Хэсэгчлэн хүргэсэн', DELIVERED: 'Хүргэж өгсөн', RETURNED: 'Буцаагдсан', CANCELLED: 'Цуцлагдсан' }
 
 export default function OrdersPage() {
   usePageTitle('Захиалгын түүх')

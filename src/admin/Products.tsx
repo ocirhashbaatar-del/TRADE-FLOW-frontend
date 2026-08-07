@@ -38,6 +38,17 @@ type ManagedProduct = {
   description: string;
   featured: boolean;
   active: boolean;
+  trackBatch: boolean;
+  trackExpiry: boolean;
+  barcode: string;
+  brand: string;
+  unit: string;
+  packSize: number;
+  costPrice: number;
+  vatRate: number;
+  reorderPoint: number;
+  channel: "BOTH" | "B2B" | "B2C";
+  images: string[];
   updatedAt: string;
 };
 type Category = { id: string; name: string; _count: { products: number } };
@@ -66,6 +77,17 @@ type FormState = {
   description: string;
   featured: boolean;
   active: boolean;
+  trackBatch: boolean;
+  trackExpiry: boolean;
+  barcode: string;
+  brand: string;
+  unit: string;
+  packSize: string;
+  costPrice: string;
+  vatRate: string;
+  reorderPoint: string;
+  channel: "BOTH" | "B2B" | "B2C";
+  images: string;
 };
 const emptyForm: FormState = {
   sku: "",
@@ -77,6 +99,17 @@ const emptyForm: FormState = {
   description: "",
   featured: false,
   active: true,
+  trackBatch: false,
+  trackExpiry: false,
+  barcode: "",
+  brand: "",
+  unit: "ш",
+  packSize: "1",
+  costPrice: "0",
+  vatRate: "10",
+  reorderPoint: "0",
+  channel: "BOTH",
+  images: "",
 };
 const slugify = (value: string) =>
   value
@@ -125,9 +158,13 @@ export default function AdminProducts() {
         slug: editing?.slug ?? slugify(`${form.name}-${form.sku}`),
         price: Number(form.price),
         stock: Number(form.stock),
+        packSize: Number(form.packSize),
+        costPrice: Number(form.costPrice),
+        vatRate: Number(form.vatRate),
+        reorderPoint: Number(form.reorderPoint),
+        images: form.images.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
         description: form.description.trim() || `${form.name} бүтээгдэхүүн`,
         image: form.image.trim() || "/images/product-placeholder.svg",
-        images: [],
         tags: [],
       };
       return editing
@@ -187,6 +224,17 @@ export default function AdminProducts() {
       description: row.description,
       featured: row.featured,
       active: row.active,
+      trackBatch: row.trackBatch,
+      trackExpiry: row.trackExpiry,
+      barcode: row.barcode ?? "",
+      brand: row.brand ?? "",
+      unit: row.unit,
+      packSize: String(row.packSize),
+      costPrice: String(row.costPrice),
+      vatRate: String(row.vatRate),
+      reorderPoint: String(row.reorderPoint),
+      channel: row.channel,
+      images: row.images.join("\n"),
     });
     setMessage("");
     setUploadError("");
@@ -497,6 +545,19 @@ export default function AdminProducts() {
                 placeholder="Жишээ: 50"
               />
             </Field>
+            <div className="grid gap-3 sm:col-span-2 sm:grid-cols-4">
+              <Field label="Barcode"><Input value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} /></Field>
+              <Field label="Brand"><Input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} /></Field>
+              <Field label="Нэгж"><Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></Field>
+              <Field label="Pack size"><Input type="number" min="1" value={form.packSize} onChange={(e) => setForm({ ...form, packSize: e.target.value })} /></Field>
+              <Field label="Өртөг"><Input type="number" min="0" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} /></Field>
+              <Field label="НӨАТ %"><Input type="number" min="0" max="100" value={form.vatRate} onChange={(e) => setForm({ ...form, vatRate: e.target.value })} /></Field>
+              <Field label="Дахин захиалах цэг"><Input type="number" min="0" value={form.reorderPoint} onChange={(e) => setForm({ ...form, reorderPoint: e.target.value })} /></Field>
+              <Field label="Суваг"><select className="h-10 w-full rounded-xl border bg-transparent px-3" value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value as FormState['channel'] })}><option value="BOTH">B2B + B2C</option><option value="B2B">B2B</option><option value="B2C">B2C</option></select></Field>
+              <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.trackBatch} onChange={(e) => setForm({ ...form, trackBatch: e.target.checked, trackExpiry: e.target.checked ? form.trackExpiry : false })} />Batch хянах</label>
+              <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" disabled={!form.trackBatch} checked={form.trackExpiry} onChange={(e) => setForm({ ...form, trackExpiry: e.target.checked })} />Expiry хянах</label>
+            </div>
+            <Field label="Олон зураг (URL бүр шинэ мөрөнд)"><textarea className="min-h-20 w-full rounded-xl border bg-transparent p-3" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} /></Field>
             <Field label="Барааны зураг">
               <label className={`flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed px-3 py-2 text-center text-sm font-semibold transition ${uploadImage.isPending ? 'cursor-wait bg-emerald-50 text-emerald-700' : 'hover:border-emerald-400 hover:bg-emerald-50'}`}>
                 <Upload className={`size-4 shrink-0 ${uploadImage.isPending ? 'animate-pulse' : ''}`} />

@@ -1,9 +1,50 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { FormEvent, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { apiClient } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { PageHeader } from '@/components/common/page-header'
-type Order={id:string;orderNumber:string;total:number;paymentStatus:string};type Otp={challengeId:string;expiresIn:number;devCode?:string};type QPay={invoiceId:string;amount:number;qrData:string;status:string};type Receipt={receiptNo:string;subtotal:number;vat:number;total:number;status:string}
-export default function Payments(){const [otp,setOtp]=useState<Otp|null>(null),[verified,setVerified]=useState(false),[orderId,setOrderId]=useState(''),[qpay,setQpay]=useState<QPay|null>(null),[receipt,setReceipt]=useState<Receipt|null>(null);const orders=useQuery({queryKey:['orders'],queryFn:async()=>(await apiClient.get<Order[]>('/orders')).data});const requestOtp=useMutation({mutationFn:async(phone:string)=>(await apiClient.post<Otp>('/payments/otp/request',{phone})).data,onSuccess:setOtp});const verifyOtp=useMutation({mutationFn:async(code:string)=>(await apiClient.post('/payments/otp/verify',{challengeId:otp?.challengeId,code})).data,onSuccess:()=>setVerified(true)});const invoice=useMutation({mutationFn:async()=>(await apiClient.post<QPay>('/payments/qpay/invoice',{orderId})).data,onSuccess:setQpay});const ebarimt=useMutation({mutationFn:async()=>(await apiClient.post<Receipt>(`/payments/ebarimt/${orderId}`)).data,onSuccess:setReceipt});const otpRequest=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();requestOtp.mutate(String(new FormData(e.currentTarget).get('phone')))};const otpVerify=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();verifyOtp.mutate(String(new FormData(e.currentTarget).get('code')))};return <><PageHeader eyebrow="FR-6.1.3 / FR-8" title="OTP, QPay, e‑barimt" description="OTP expiry/attempt, QPay idempotent callback, НӨАТ задаргаатай дотоод e‑barimt record."/><div className="grid gap-6 lg:grid-cols-3"><Card className="p-5"><h2 className="font-bold">1. Утасны OTP</h2><form onSubmit={otpRequest} className="mt-4 space-y-3"><Input name="phone" required minLength={8} placeholder="99112233"/><Button className="w-full" loading={requestOtp.isPending}>OTP авах</Button></form>{otp&&<form onSubmit={otpVerify} className="mt-4 space-y-3"><Input name="code" required minLength={6} maxLength={6} placeholder="6 оронтой код" defaultValue={otp.devCode}/><Button className="w-full" loading={verifyOtp.isPending}>Баталгаажуулах</Button><p className="text-xs text-slate-500">{otp.expiresIn} секунд хүчинтэй. {otp.devCode&&`Dev код: ${otp.devCode}`}</p></form>}{verified&&<div className="mt-3 text-sm font-bold text-emerald-600">Утас баталгаажлаа.</div>}</Card><Card className="p-5 lg:col-span-2"><h2 className="font-bold">2. Захиалга ба төлбөр</h2><select value={orderId} onChange={e=>{setOrderId(e.target.value);setQpay(null);setReceipt(null)}} className="mt-4 h-10 w-full rounded-xl border bg-transparent px-3"><option value="">Захиалга сонгох</option>{orders.data?.map(row=><option key={row.id} value={row.id}>{row.orderNumber} · {row.total}₮ · {row.paymentStatus}</option>)}</select><div className="mt-4 flex gap-3"><Button disabled={!orderId} loading={invoice.isPending} onClick={()=>invoice.mutate()}>QPay invoice үүсгэх</Button><Button disabled={!orderId} variant="secondary" loading={ebarimt.isPending} onClick={()=>ebarimt.mutate()}>E‑barimt үүсгэх</Button></div>{qpay&&<div className="mt-5 rounded-2xl bg-slate-950 p-5 text-white"><div className="text-sm text-white/60">QPay invoice</div><div className="mt-1 font-bold">{qpay.invoiceId} · {Number(qpay.amount).toLocaleString()}₮</div><div className="mt-3 break-all rounded-xl bg-white p-3 font-mono text-xs text-slate-900">{qpay.qrData}</div><p className="mt-2 text-xs text-white/50">Production-д энэ payload QPay QR image/provider response-оор солигдоно.</p></div>}{receipt&&<div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><div className="font-bold">E‑barimt {receipt.receiptNo}</div><div className="mt-2 grid grid-cols-3 gap-2 text-sm"><div>Дүн: {Number(receipt.subtotal).toLocaleString()}₮</div><div>НӨАТ: {Number(receipt.vat).toLocaleString()}₮</div><div>Нийт: {Number(receipt.total).toLocaleString()}₮</div></div></div>}</Card></div></>}
+
+type Order = { id: string; orderNumber: string; total: number; paymentStatus: string }
+type QPay = { invoiceId: string; amount: number; qrData: string; qrImage?: string; status: string }
+type Transfer = { id: string; reference: string; amount: number; bankName: string; transferredAt: string; status: string; rejectionReason?: string }
+
+export default function Payments() {
+  const queryClient = useQueryClient()
+  const [orderId, setOrderId] = useState('')
+  const [qpay, setQpay] = useState<QPay | null>(null)
+  const orders = useQuery({ queryKey: ['orders'], queryFn: async () => (await apiClient.get<Order[]>('/orders')).data })
+  const transfers = useQuery({ queryKey: ['bank-transfers'], queryFn: async () => (await apiClient.get<Transfer[]>('/payments/bank-transfers')).data })
+  const invoice = useMutation({ mutationFn: async () => (await apiClient.post<QPay>('/payments/qpay/invoice', { orderId })).data, onSuccess: setQpay })
+  const review = useMutation({ mutationFn: async ({ id, action }: { id: string; action: 'approve' | 'reject' }) => (await apiClient.post(`/payments/bank-transfers/${id}/${action}`, action === 'reject' ? { reason: 'Нягтлан татгалзсан' } : {})).data, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bank-transfers'] }) })
+
+  return <>
+    <PageHeader eyebrow="FR-6.1.3 / FR-8.3" title="QPay ба банкны шилжүүлэг" description="Provider-оор баталгаажсан QPay төлбөр болон нягтлангийн хяналттай банкны шилжүүлэг." />
+    <div className="grid gap-6 lg:grid-cols-2">
+      <Card className="p-5">
+        <h2 className="font-bold">QPay invoice</h2>
+        <select value={orderId} onChange={(event) => { setOrderId(event.target.value); setQpay(null) }} className="mt-4 h-10 w-full rounded-xl border bg-transparent px-3">
+          <option value="">Захиалга сонгох</option>
+          {orders.data?.map((order) => <option key={order.id} value={order.id}>{order.orderNumber} · {Number(order.total).toLocaleString()}₮ · {order.paymentStatus}</option>)}
+        </select>
+        <Button className="mt-4" disabled={!orderId} loading={invoice.isPending} onClick={() => invoice.mutate()}>QPay invoice үүсгэх</Button>
+        {qpay && <div className="mt-5 rounded-2xl bg-slate-950 p-5 text-white">
+          <div className="font-bold">{Number(qpay.amount).toLocaleString()}₮</div>
+          {qpay.qrImage ? <img src={qpay.qrImage} alt="QPay QR" className="mx-auto mt-3 max-h-64 rounded-xl bg-white p-3" /> : <div className="mt-3 break-all rounded-xl bg-white p-3 text-xs text-slate-900">{qpay.qrData}</div>}
+          <div className="mt-2 text-xs text-white/60">Төлбөр callback ирэхэд QPay API-аас дахин шалгагдана.</div>
+        </div>}
+      </Card>
+      <Card className="p-5">
+        <h2 className="font-bold">Банкны шилжүүлгийн хяналт</h2>
+        <div className="mt-4 space-y-3">
+          {transfers.data?.map((row) => <div key={row.id} className="rounded-xl border p-4 text-sm">
+            <div className="flex justify-between gap-3"><strong>{row.reference}</strong><span>{Number(row.amount).toLocaleString()}₮</span></div>
+            <div className="mt-1 text-slate-500">{row.bankName} · {row.status}</div>
+            {row.status === 'PENDING' && <div className="mt-3 flex gap-2"><Button loading={review.isPending} onClick={() => review.mutate({ id: row.id, action: 'approve' })}>Батлах</Button><Button variant="secondary" onClick={() => review.mutate({ id: row.id, action: 'reject' })}>Татгалзах</Button></div>}
+          </div>)}
+          {!transfers.data?.length && <div className="text-sm text-slate-500">Хүлээгдэж буй шилжүүлэг байхгүй.</div>}
+        </div>
+      </Card>
+    </div>
+  </>
+}

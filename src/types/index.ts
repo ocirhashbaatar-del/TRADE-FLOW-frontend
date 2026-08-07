@@ -33,6 +33,8 @@ export interface Product {
   category: string
   vendor: string
   price: number
+  priceSource?: string
+  purchaseChannel?: 'B2C' | 'B2B'
   compareAt?: number
   rating: number
   reviews: number
