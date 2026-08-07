@@ -1,13 +1,7 @@
 import type { User, UserRole } from '@/types'
 
-export const ADMIN_EMAIL = 'ocirhashbaatar@gmail.com'
-export const DELIVERY_EMAIL = 'gardi@gmail.com'
-
 export const canAccessRolePortal = (user: User) => {
-  const email = user.email.trim().toLowerCase()
-  if (user.role === 'Admin') return email === ADMIN_EMAIL
-  if (user.role === 'Transporter') return email === DELIVERY_EMAIL
-  return true
+  return user.role !== 'Customer'
 }
 
 export const roleHome: Record<UserRole, string> = {

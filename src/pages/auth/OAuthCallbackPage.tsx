@@ -8,7 +8,16 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { oauthExchange } = useAuth()
   const code = params.get('code')
-  const [error, setError] = useState(() => !code || params.get('error') ? 'Social login амжилтгүй боллоо.' : '')
+  const callbackError = params.get('error')
+  const errorMessages: Record<string, string> = {
+    not_configured: 'Facebook login тохиргоогүй байна.',
+    invalid_state: 'Нэвтрэх хүсэлтийн хугацаа дууссан. Дахин оролдоно уу.',
+    temporarily_unavailable: 'Social login түр боломжгүй байна. Хэсэг хугацааны дараа оролдоно уу.',
+    facebook_failed: 'Facebook-ээс бүртгэлийн мэдээлэл авах боломжгүй байна.',
+    google_failed: 'Google-ээс бүртгэлийн мэдээлэл авах боломжгүй байна.',
+    access_denied: 'Social login-ын зөвшөөрөл цуцлагдлаа. Дахин оролдоно уу.',
+  }
+  const [error, setError] = useState(() => callbackError ? (errorMessages[callbackError] ?? 'Social login амжилтгүй боллоо.') : (!code ? 'Social login амжилтгүй боллоо.' : ''))
   const started = useRef(false)
 
   useEffect(() => {
