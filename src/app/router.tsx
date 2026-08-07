@@ -56,6 +56,7 @@ export const router = createBrowserRouter([
       { path: 'roles', element: <RolesPage /> },
       { path: 'roles/:slug', element: <RolesPage /> },
       { path: 'b2b', element: <B2BPortalPage /> },
+      { path: 'manage/products', element: <RoleGuard roles={['Admin', 'Manager', 'Vendor']}><AdminProducts /></RoleGuard> },
       { path: 'employee', element: <RoleGuard roles={['Manager', 'Employee']}><InventoryDashboardPage /></RoleGuard> },
       { path: 'supplier', element: <RoleGuard roles={['Vendor']}><SupplierDashboardPage /></RoleGuard> },
       { path: 'transport', element: <RoleGuard roles={['Transporter']}><TransportDashboardPage /></RoleGuard> },
