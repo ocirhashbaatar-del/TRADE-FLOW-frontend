@@ -1,10 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { Product } from '@/types'
+import type { Product, ProductVariant } from '@/types'
 import { apiClient } from '@/api/client'
 import { useAuth } from '@/contexts/auth-context'
 
-export type CartItem = Product & { qty: number }
+export type CartItem = Product & { qty: number; productId?: string; variantId?: string; variant?: ProductVariant }
 
 type ShoppingState = { cart: CartItem[]; savedProductIds: string[] }
 type CartContextValue = {
@@ -13,7 +13,7 @@ type CartContextValue = {
   itemCount: number
   lastAdded: Product | null
   drawerOpen: boolean
-  addItem: (product: Product, quantity?: number) => void
+  addItem: (product: Product, quantity?: number, variant?: ProductVariant) => void
   updateQty: (id: string, delta: number) => void
   setItemQty: (id: string, quantity: number) => void
   removeItem: (id: string) => void
@@ -87,13 +87,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     itemCount: items.reduce((total, item) => total + item.qty, 0),
     lastAdded,
     drawerOpen,
-    addItem: (product, quantity = 1) => {
-      const safeQuantity = Math.max(1, Math.min(product.stock, Math.floor(quantity)))
+    addItem: (product, quantity = 1, variant) => {
+      const available = variant?.stock ?? product.stock
+      const safeQuantity = Math.max(1, Math.min(available, Math.floor(quantity)))
+      const itemId = variant ? `${product.id}:${variant.id}` : product.id
       setItems((current) => {
-        const existing = current.find((item) => item.id === product.id)
-        return existing ? current.map((item) => item.id === product.id ? { ...item, qty: Math.min(product.stock, item.qty + safeQuantity) } : item) : [...current, { ...product, qty: safeQuantity }]
+        const existing = current.find((item) => item.id === itemId)
+        return existing ? current.map((item) => item.id === itemId ? { ...item, qty: Math.min(available, item.qty + safeQuantity) } : item) : [...current, { ...product, id: itemId, productId: product.id, variantId: variant?.id, variant, price: variant?.price ?? product.price, stock: available, qty: safeQuantity }]
       })
-      if (user) void apiClient.post(`/shopping/cart/${product.id}`, { quantity: safeQuantity }).catch(reportSyncError)
+      if (user) void apiClient.post(`/shopping/cart/${product.id}`, { quantity: safeQuantity, variantId: variant?.id }).catch(reportSyncError)
       setLastAdded(product)
       setDrawerOpen(true)
     },
@@ -102,18 +104,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!current) return
       const quantity = Math.max(1, Math.min(current.stock, current.qty + delta))
       setItems((rows) => rows.map((item) => item.id === id ? { ...item, qty: quantity } : item))
-      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(reportSyncError)
+      if (user) void apiClient.patch(`/shopping/cart/${current.productId ?? id}`, { quantity, variantId: current.variantId }).catch(reportSyncError)
     },
     setItemQty: (id, requested) => {
       const current = items.find((item) => item.id === id)
       if (!current) return
       const quantity = Math.max(1, Math.min(current.stock, Math.floor(Number(requested) || 1)))
       setItems((rows) => rows.map((item) => item.id === id ? { ...item, qty: quantity } : item))
-      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(reportSyncError)
+      if (user) void apiClient.patch(`/shopping/cart/${current.productId ?? id}`, { quantity, variantId: current.variantId }).catch(reportSyncError)
     },
     removeItem: (id) => {
-      setItems((current) => current.filter((item) => item.id !== id))
-      if (user) void apiClient.delete(`/shopping/cart/${id}`).catch(reportSyncError)
+      const current = items.find((item) => item.id === id)
+      setItems((rows) => rows.filter((item) => item.id !== id))
+      if (user && current) void apiClient.delete(`/shopping/cart/${current.productId ?? id}`, { params: { variantId: current.variantId } }).catch(reportSyncError)
     },
     clearCart: () => {
       setItems([]); setLastAdded(null); setDrawerOpen(false)

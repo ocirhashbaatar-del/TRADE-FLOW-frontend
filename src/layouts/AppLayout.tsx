@@ -20,8 +20,16 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/contexts/auth-context'
 import { useTheme } from '@/contexts/theme-context'
 import { cn } from '@/utils/cn'
+import { useQuery } from '@tanstack/react-query'
+import { apiClient } from '@/api/client'
+
+type Permission = { module: string; canRead: boolean }
+const navigationModule = (href: string) => href.includes('pricing') ? 'pricing' : href.includes('inventory') ? 'inventory' : href.includes('procurement') ? 'procurement' : href.includes('fulfillment') || href.includes('returns') ? 'fulfillment' : href.includes('payments') || href.includes('invoices') ? 'finance' : href.includes('reports') ? 'reports' : href.includes('users') || href.includes('roles') ? 'users' : href.includes('settings') || href.includes('platform') ? 'settings' : href.includes('order') ? 'orders' : href.includes('catalog') || href.includes('products') ? 'catalog' : 'dashboard'
 
 function SidebarContent() {
+  const { user } = useAuth()
+  const { data: permissions = [] } = useQuery({ queryKey: ['my-permissions', user?.id], queryFn: async () => (await apiClient.get<Permission[]>('/admin/my-permissions')).data, enabled: Boolean(user) })
+  const canRead = (href: string) => user?.role === 'Admin' || permissions.some((permission) => permission.module === navigationModule(href) && permission.canRead)
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-slate-100 px-4 py-4 dark:border-slate-800">
@@ -35,7 +43,7 @@ function SidebarContent() {
               {section.label}
             </div>
             <div className="space-y-1">
-              {section.items.map((item) => (
+              {section.items.filter((item) => canRead(item.href)).map((item) => (
                 <NavLink
                   key={item.href}
                   to={item.href}

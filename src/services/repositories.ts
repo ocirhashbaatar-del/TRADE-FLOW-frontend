@@ -55,7 +55,7 @@ class MockMarketplaceRepository implements MarketplaceRepository {
 class ApiMarketplaceRepository implements MarketplaceRepository {
   async listCategories(): Promise<Category[]> { return (await apiClient.get<Category[]>(endpoints.categories)).data }
   async listProducts(query = ''): Promise<Product[]> { return (await apiClient.get<Product[]>(endpoints.products, { params: { q: query } })).data }
-  async getProduct(id: string, quantity = 1, channel: 'B2C' | 'B2B' = 'B2C'): Promise<Product | undefined> { return (await apiClient.get<Product | undefined>(`${endpoints.products}/${id}`, { params: { quantity, channel } })).data }
+  async getProduct(id: string, quantity = 1, channel: 'B2C' | 'B2B' = 'B2C', variantId?: string): Promise<Product | undefined> { return (await apiClient.get<Product | undefined>(`${endpoints.products}/${id}`, { params: { quantity, channel, variantId } })).data }
 }
 
 class MockEnterpriseRepository implements EnterpriseRepository {

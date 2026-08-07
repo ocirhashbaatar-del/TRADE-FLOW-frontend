@@ -17,18 +17,19 @@ export default function ProductDetail() {
   const [searchParams] = useSearchParams()
   const channel = searchParams.get('channel') === 'B2B' ? 'B2B' : 'B2C'
   const [qty, setQty] = useState(1)
+  const [selectedVariantId, setSelectedVariantId] = useState<string>()
   const { addItem, savedProductIds: favorites, toggleSaved: toggleFavorite } = useCart()
   const [added, setAdded] = useState(false)
 
   const addToCart = () => {
     if (!product) return
-    addItem(product, qty)
+    addItem(product, qty, product.variants?.find((variant) => variant.id === selectedVariantId))
     setAdded(true)
   }
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ['product', id, qty, channel],
-    queryFn: () => repositories.marketplace.getProduct(id, qty, channel),
+    queryKey: ['product', id, qty, channel, selectedVariantId],
+    queryFn: () => repositories.marketplace.getProduct(id, qty, channel, selectedVariantId),
   })
 
   const { data: catalog = [] } = useQuery({
@@ -49,6 +50,9 @@ export default function ProductDetail() {
   if (!product) {
     return <div className="p-20 text-center text-stone-500">Бүтээгдэхүүн олдсонгүй.</div>
   }
+  const selectedVariant = product.variants?.find((variant) => variant.id === selectedVariantId)
+  const availableStock = selectedVariant?.stock ?? product.stock
+  const activePrice = selectedVariant?.price ?? product.price
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
@@ -100,7 +104,7 @@ export default function ProductDetail() {
           </div>
 
           <div className="mt-7 flex items-end gap-3">
-            <span className="text-4xl font-bold">{currency.format(product.price)}</span>
+            <span className="text-4xl font-bold">{currency.format(activePrice)}</span>
             {product.compareAt && (
               <span className="pb-1 text-lg text-stone-400 line-through">
                 {currency.format(product.compareAt)}
@@ -118,12 +122,13 @@ export default function ProductDetail() {
             ))}
           </div>
 
+          {product.variants && product.variants.length > 0 && <div className="mt-7"><div className="mb-2 text-sm font-semibold">Хувилбар сонгох</div><div className="flex flex-wrap gap-2">{product.variants.map((variant) => <Button key={variant.id} type="button" variant={selectedVariantId === variant.id ? 'default' : 'secondary'} disabled={variant.stock <= 0} onClick={() => { setSelectedVariantId(variant.id); setQty(1); setAdded(false) }}>{variant.name} · {variant.stock}ш</Button>)}</div></div>}
           <Card className="mt-8 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-semibold">Худалдан авах тоо</div>
                 <div className="mt-1 text-xs text-emerald-600">
-                  {product.stock} ширхэг бэлэн
+                  {availableStock} ширхэг бэлэн
                 </div>
               </div>
               <div className="flex items-center rounded-xl border border-stone-200 dark:border-stone-700">
@@ -134,16 +139,16 @@ export default function ProductDetail() {
                 >
                   <Minus className="size-4" />
                 </Button>
-                <input type="number" min={1} max={product.stock} value={qty} onChange={(event) => setQty(Math.max(1, Math.min(product.stock, Math.floor(Number(event.target.value) || 1))))} className="h-10 w-16 border-x border-stone-200 bg-transparent text-center font-semibold outline-none dark:border-stone-700" aria-label="Худалдан авах тоо" />
-                <Button variant="ghost" size="icon" disabled={qty >= product.stock} onClick={() => setQty(Math.min(product.stock, qty + 1))}>
+                <input type="number" min={1} max={availableStock} value={qty} onChange={(event) => setQty(Math.max(1, Math.min(availableStock, Math.floor(Number(event.target.value) || 1))))} className="h-10 w-16 border-x border-stone-200 bg-transparent text-center font-semibold outline-none dark:border-stone-700" aria-label="Худалдан авах тоо" />
+                <Button variant="ghost" size="icon" disabled={qty >= availableStock} onClick={() => setQty(Math.min(availableStock, qty + 1))}>
                   <Plus className="size-4" />
                 </Button>
               </div>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
-              <Button type="button" size="lg" onClick={addToCart}>
+              <Button type="button" size="lg" disabled={Boolean(product.variants?.length) && !selectedVariantId} onClick={addToCart}>
                 {added ? <Check className="size-5" /> : <ShoppingCart className="size-5" />} {added ? 'Сагсанд нэмэгдлээ' : 'Сагсанд нэмэх'} ·{' '}
-                {currency.format(product.price * qty)}
+                {currency.format(activePrice * qty)}
               </Button>
               <Button type="button" variant="secondary" size="lg" onClick={() => toggleFavorite(product.id)} aria-label={favorites.includes(product.id) ? 'Хүслийн жагсаалтаас хасах' : 'Хүслийн жагсаалтад нэмэх'}>
                 <Heart className={`size-5 ${favorites.includes(product.id) ? 'fill-rose-500 text-rose-500' : ''}`} />

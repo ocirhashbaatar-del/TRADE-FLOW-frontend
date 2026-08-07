@@ -43,7 +43,10 @@ export interface Product {
   description: string
   featured?: boolean
   tags: string[]
+  variants?: ProductVariant[]
 }
+
+export interface ProductVariant { id: string; name: string; sku: string; barcode?: string; options: Record<string, string>; price: number; stock: number }
 
 export interface NotificationItem {
   id: string

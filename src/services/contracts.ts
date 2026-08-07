@@ -22,7 +22,7 @@ export interface DashboardRepository { getSnapshot(): Promise<DashboardSnapshot>
 export interface MarketplaceRepository {
   listCategories(): Promise<Category[]>
   listProducts(query?: string): Promise<Product[]>
-  getProduct(id: string, quantity?: number, channel?: 'B2C' | 'B2B'): Promise<Product | undefined>
+  getProduct(id: string, quantity?: number, channel?: 'B2C' | 'B2B', variantId?: string): Promise<Product | undefined>
 }
 export interface EnterpriseRepository {
   list(module: string, page?: number, pageSize?: number): Promise<Paginated<ModuleRecord>>

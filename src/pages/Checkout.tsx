@@ -42,7 +42,7 @@ export default function CheckoutPage() {
         window.dispatchEvent(new Event('tradeflow-auth-changed'))
       }
       const data = new FormData(event.currentTarget)
-      const order = (await apiClient.post<{ id: string }>('/orders', { items: items.map((item) => ({ productId: item.id, quantity: item.qty })), recipientName: data.get('recipientName'), phone: data.get('phone'), city: data.get('city'), district: data.get('district'), address: data.get('address'), couponCode: data.get('couponCode') || undefined, deliveryZoneId: data.get('deliveryZoneId') || undefined, channel: isB2B ? 'B2B' : 'B2C' })).data
+      const order = (await apiClient.post<{ id: string }>('/orders', { items: items.map((item) => ({ productId: item.productId ?? item.id, variantId: item.variantId, quantity: item.qty })), recipientName: data.get('recipientName'), phone: data.get('phone'), city: data.get('city'), district: data.get('district'), address: data.get('address'), couponCode: data.get('couponCode') || undefined, deliveryZoneId: data.get('deliveryZoneId') || undefined, channel: isB2B ? 'B2B' : 'B2C' })).data
       if (isB2B) { clearCart(); navigate('/b2b'); return }
       const session = (await apiClient.post<{ url: string | null }>('/payments/checkout-session', { orderId: order.id })).data
       if (!session.url) throw new Error('Stripe URL missing')
