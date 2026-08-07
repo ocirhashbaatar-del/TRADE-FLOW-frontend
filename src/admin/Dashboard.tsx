@@ -83,9 +83,8 @@ export default function AdminDashboard() {
               <RefreshCw className={`size-4 ${isFetching ? 'animate-spin' : ''}`} />
               Сэргээх
             </Button>
-            <Button>
-              <Plus className="size-4" /> Захиалга үүсгэх
-            </Button>
+            <Button asChild variant="secondary"><Link to="/admin/products"><Plus className="size-4" /> Бараа удирдах</Link></Button>
+            <Button asChild><Link to="/admin/manual-order"><Plus className="size-4" /> Захиалга үүсгэх</Link></Button>
           </>
         }
       />
