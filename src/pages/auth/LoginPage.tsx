@@ -10,8 +10,6 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/auth-context'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
-import type { User } from '@/types'
-import { getRoleHome } from '@/utils/role-routing'
 
 const schema = z.object({
   email: z.email('Имэйл хаягаа зөв оруулна уу'),
@@ -34,8 +32,7 @@ export default function LoginPage() {
 
   const finishLogin = () => {
     const requestedPath = (location.state as { from?: unknown } | null)?.from
-    const loggedInUser = JSON.parse(localStorage.getItem('tradeflow-user') ?? 'null') as User | null
-    navigate(typeof requestedPath === 'string' && requestedPath.startsWith('/') && requestedPath !== '/' ? requestedPath : loggedInUser ? getRoleHome(loggedInUser.role) : '/products', { replace: true })
+    navigate(typeof requestedPath === 'string' && requestedPath.startsWith('/') && requestedPath !== '/' ? requestedPath : '/products', { replace: true })
   }
 
   const submit = async (values: FormValues) => {

@@ -25,7 +25,8 @@ export default function OAuthCallbackPage() {
     started.current = true
     if (!code) return
     oauthExchange(code).then(() => {
-      const destination = sessionStorage.getItem('tradeflow-oauth-return') ?? '/'
+      const storedDestination = sessionStorage.getItem('tradeflow-oauth-return')
+      const destination = storedDestination && storedDestination.startsWith('/') && storedDestination !== '/' ? storedDestination : '/products'
       sessionStorage.removeItem('tradeflow-oauth-return')
       navigate(destination, { replace: true })
     }).catch(() => setError('OAuth code хүчингүй эсвэл хугацаа дууссан.'))

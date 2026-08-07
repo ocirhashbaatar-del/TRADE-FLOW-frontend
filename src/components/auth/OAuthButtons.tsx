@@ -6,7 +6,7 @@ export function OAuthButtons() {
   const location = useLocation()
   const rememberReturnPath = () => {
     const requested = (location.state as { from?: unknown } | null)?.from
-    sessionStorage.setItem('tradeflow-oauth-return', typeof requested === 'string' && requested.startsWith('/') ? requested : '/')
+    sessionStorage.setItem('tradeflow-oauth-return', typeof requested === 'string' && requested.startsWith('/') && requested !== '/' ? requested : '/products')
   }
   return <div className="space-y-3">
     <a onClick={rememberReturnPath} href={`${apiBase}/auth/oauth/google/start`} className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:bg-orange-50 dark:border-white/10 dark:bg-white/5 dark:text-white"><span className="text-base font-black text-[#4285F4]">G</span>Google-ээр үргэлжлүүлэх</a>
