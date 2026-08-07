@@ -5,7 +5,6 @@ import { MarketplaceLayout } from '@/layouts/MarketplaceLayout'
 import { NotFoundPage, ServerErrorPage } from '@/pages/system/SystemPages'
 import { AdminGuard } from '@/components/auth/AdminGuard'
 import { RoleGuard } from '@/components/auth/RoleGuard'
-import { GuestLanding } from '@/components/auth/GuestLanding'
 
 const HomePage = lazy(() => import('@/pages/Home'))
 const ProductsPage = lazy(() => import('@/pages/Products'))
@@ -47,7 +46,7 @@ export const router = createBrowserRouter([
     element: <MarketplaceLayout />,
     errorElement: <ServerErrorPage />,
     children: [
-      { index: true, element: <GuestLanding><HomePage /></GuestLanding> },
+      { index: true, element: <HomePage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'products/:id', element: <ProductDetailPage /> },
       { path: 'cart', element: <CartPage /> },

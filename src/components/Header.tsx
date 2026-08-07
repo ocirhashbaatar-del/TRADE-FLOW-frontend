@@ -46,7 +46,7 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-[72px] max-w-[1380px] items-center gap-6 px-4 sm:px-6 lg:px-8">
-        <Link to={user ? '/products' : '/'} aria-label="FreshFlow Нүүр">
+        <Link to="/" aria-label="FreshFlow нүүр хуудас">
           <AppLogo light={resolvedTheme === 'dark'} />
         </Link>
 
