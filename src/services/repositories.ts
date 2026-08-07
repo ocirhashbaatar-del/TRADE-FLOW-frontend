@@ -65,7 +65,9 @@ class ApiEnterpriseRepository implements EnterpriseRepository {
   async list(module: string, page = 1, pageSize = 8): Promise<Paginated<ModuleRecord>> { return (await apiClient.get<Paginated<ModuleRecord>>(`/${module}`, { params: { page, pageSize } })).data }
 }
 
-const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false'
+// Mock data must be explicitly enabled. Production deployments without the
+// variable should always use the authenticated API and the real signed-in user.
+const useMocks = import.meta.env.VITE_USE_MOCKS === 'true'
 export const repositories: { auth: AuthRepository; dashboard: DashboardRepository; marketplace: MarketplaceRepository; enterprise: EnterpriseRepository } = {
   auth: useMocks ? new MockAuthRepository() : new ApiAuthRepository(),
   dashboard: useMocks ? new MockDashboardRepository() : new ApiDashboardRepository(),
