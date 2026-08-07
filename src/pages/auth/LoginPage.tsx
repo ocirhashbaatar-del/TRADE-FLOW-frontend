@@ -27,7 +27,7 @@ export default function LoginPage() {
   const location = useLocation()
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: 'ocirhashbaatar@gmail.com', password: 'Aa88016745', remember: true },
+    defaultValues: { email: '', password: '', remember: true },
   })
 
   const finishLogin = () => {
