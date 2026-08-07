@@ -7,9 +7,9 @@ import type { UserRole } from '@/types'
 const portals: Partial<Record<UserRole, { title: string; description: string; links: Array<{ label: string; href: string; icon: typeof Package }> }>> = {
   Manager: { title: 'Ажилтны хэсэг', description: 'Захиалга, бараа материал болон өдөр тутмын ажиллагаа.', links: [{ label: 'Захиалга', href: '/orders', icon: ClipboardList }, { label: 'Бараа, SKU удирдах', href: '/manage/products', icon: Boxes }] },
   Employee: { title: 'Ажилтны хэсэг', description: 'Захиалга, бараа материал болон өдөр тутмын ажиллагаа.', links: [{ label: 'Захиалга', href: '/orders', icon: ClipboardList }, { label: 'Бараа материал', href: '/products', icon: Boxes }] },
-  Vendor: { title: 'Нийлүүлэгчийн хэсэг', description: 'Нийлүүлэх бараа болон худалдан авалтын захиалга.', links: [{ label: 'Бараа, SKU удирдах', href: '/manage/products', icon: Package }, { label: 'Захиалга', href: '/orders', icon: ClipboardList }] },
-  Transporter: { title: 'Тээвэрлэгчийн хэсэг', description: 'Хүргэлт болон тээвэрлэлтийн ажлын хяналт.', links: [{ label: 'Тээвэр, хүргэлт', href: '/orders', icon: Truck }, { label: 'Профайл', href: '/profile', icon: ClipboardList }] },
-  Accountant: { title: 'Нягтлангийн хэсэг', description: 'Санхүү, төлбөр тооцоо болон тайлан.', links: [{ label: 'Санхүү ба авлага', href: '/orders', icon: Calculator }, { label: 'Профайл', href: '/profile', icon: BarChart3 }] },
+  Vendor: { title: 'Нийлүүлэгчийн хэсэг', description: 'Нийлүүлэх бараа болон худалдан авалтын захиалга.', links: [{ label: 'Бараа, SKU удирдах', href: '/manage/products', icon: Package }, { label: 'Нийлүүлэлт ба PO', href: '/supplier', icon: ClipboardList }] },
+  Transporter: { title: 'Тээвэрлэгчийн хэсэг', description: 'Хүргэлт болон тээвэрлэлтийн ажлын хяналт.', links: [{ label: 'Тээвэр, хүргэлт', href: '/transport', icon: Truck }, { label: 'Профайл', href: '/profile', icon: ClipboardList }] },
+  Accountant: { title: 'Нягтлангийн хэсэг', description: 'Санхүү, төлбөр тооцоо болон тайлан.', links: [{ label: 'Санхүү ба авлага', href: '/accounting', icon: Calculator }, { label: 'Профайл', href: '/profile', icon: BarChart3 }] },
 }
 
 export default function RolePortal() {

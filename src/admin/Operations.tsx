@@ -17,6 +17,7 @@ const modules = {
   invoices: ['Нэхэмжлэл ба авлага', '/finance/invoices'],
   ledger: ['Санхүүгийн ledger', '/finance/ledger'],
   reports: ['Бодит тайлан', '/reports/sales'],
+  performance: ['Үйл ажиллагааны KPI', '/reports/operations'],
   customers: ['B2B харилцагчид', '/b2b/customers'],
   returns: ['Буцаалтын хүсэлт', '/fulfillment/returns'],
 } as const
@@ -25,13 +26,14 @@ export default function Operations() {
   const client = useQueryClient()
   const key = (useParams().module ?? 'inventory') as keyof typeof modules
   const current = modules[key] ?? modules.inventory
-  const query = useQuery({ queryKey: ['operations', key], queryFn: async () => (await apiClient.get<unknown[]>(current[1])).data })
+  const query = useQuery({ queryKey: ['operations', key], queryFn: async () => (await apiClient.get<unknown>(current[1])).data })
   const warehouses = useQuery({ queryKey: ['inventory', 'warehouses'], queryFn: async () => (await apiClient.get<Array<{ id: string; name: string }>>('/inventory/warehouses')).data, enabled: key === 'reorder' })
   const draftPo = useMutation({ mutationFn: async () => apiClient.post('/inventory/reorder-suggestions/draft-pos', { warehouseId: warehouses.data?.[0]?.id }), onSuccess: async () => { await Promise.all([query.refetch(), client.invalidateQueries({ queryKey: ['operations', 'procurement'] })]) } })
+  const downloadPdf = async () => { const response = await apiClient.get('/reports/operations.pdf', { responseType: 'blob' }); const url = URL.createObjectURL(response.data as Blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'tradeflow-operations-report.pdf'; anchor.click(); URL.revokeObjectURL(url) }
   if (query.isLoading) return <LoadingState />
-  const rows = Array.isArray(query.data) ? query.data : []
+  const rows = Array.isArray(query.data) ? query.data : query.data && typeof query.data === 'object' ? Object.entries(query.data as Record<string, unknown>).flatMap(([section, value]) => Array.isArray(value) ? value.map((row) => ({ section, ...(row as object) })) : []) : []
   return <>
-    <PageHeader eyebrow="SCM удирдлага" title={current[0]} description={key === 'reorder' ? 'Available үлдэгдэл, preferred supplier, MOQ болон ердийн захиалгын тоонд үндэслэнэ.' : 'PostgreSQL дээрх бодит tenant өгөгдөл.'} actions={<div className="flex gap-2"><Button variant="secondary" onClick={() => void query.refetch()}>Сэргээх</Button>{key === 'reorder' && <Button disabled={!warehouses.data?.[0] || draftPo.isPending} onClick={() => draftPo.mutate()}>Draft PO үүсгэх</Button>}</div>} />
+    <PageHeader eyebrow="SCM удирдлага" title={current[0]} description={key === 'reorder' ? 'Available үлдэгдэл, preferred supplier, MOQ болон ердийн захиалгын тоонд үндэслэнэ.' : 'PostgreSQL дээрх бодит tenant өгөгдөл.'} actions={<div className="flex gap-2"><Button variant="secondary" onClick={() => void query.refetch()}>Сэргээх</Button>{key === 'performance' && <Button onClick={() => void downloadPdf()}>PDF татах</Button>}{key === 'reorder' && <Button disabled={!warehouses.data?.[0] || draftPo.isPending} onClick={() => draftPo.mutate()}>Draft PO үүсгэх</Button>}</div>} />
     <div className="mb-5 flex flex-wrap gap-2">{Object.entries(modules).map(([id, item]) => <Button key={id} asChild variant={id === key ? 'default' : 'secondary'} size="sm"><Link to={`/admin/operations/${id}`}>{item[0]}</Link></Button>)}</div>
     {query.isError && <div className="rounded-2xl bg-rose-50 p-4 text-rose-700">API мэдээлэл авахад алдаа гарлаа.</div>}
     {draftPo.isSuccess && <div className="mb-4 rounded-2xl bg-emerald-50 p-4 text-emerald-700">Reorder саналаас draft PO амжилттай үүслээ.</div>}
