@@ -27,6 +27,7 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null)
 const guestCartKey = 'tradeflow-cart-guest'
 const guestSavedKey = 'tradeflow-saved-guest-v2'
+const userCartKey = (userId: string) => `tradeflow-cart-user-${userId}`
 const readGuest = <T,>(key: string, fallback: T): T => {
   try { return JSON.parse(localStorage.getItem(key) ?? '') as T }
   catch { return fallback }
@@ -35,6 +36,7 @@ const readGuest = <T,>(key: string, fallback: T): T => {
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth()
   const [items, setItems] = useState<CartItem[]>([])
+  const [cartOwnerId, setCartOwnerId] = useState<string | null>(null)
   const [savedProductIds, setSavedProductIds] = useState<string[]>([])
   const [lastAdded, setLastAdded] = useState<Product | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -47,7 +49,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const loadUserState = useCallback(async () => {
     if (!user) return
     const { data } = await apiClient.get<ShoppingState>('/shopping')
-    setItems(data.cart)
+    const localCart = readGuest<CartItem[]>(userCartKey(user.id), [])
+    setItems(data.cart.length > 0 ? data.cart : localCart)
     setSavedProductIds(data.savedProductIds)
   }, [user])
 
@@ -56,23 +59,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setLastAdded(null)
     setDrawerOpen(false)
     if (user) {
-      setItems([])
+      setItems(readGuest<CartItem[]>(userCartKey(user.id), []))
+      setCartOwnerId(user.id)
       setSavedProductIds([])
-      void loadUserState().catch(() => { setItems([]); setSavedProductIds([]) })
+      void loadUserState().catch(() => undefined)
     } else {
       setItems(readGuest<CartItem[]>(guestCartKey, []))
+      setCartOwnerId('guest')
       setSavedProductIds(readGuest<string[]>(guestSavedKey, []))
     }
   }, [authLoading, loadUserState, user])
 
   useEffect(() => {
-    if (!authLoading && !user) localStorage.setItem(guestCartKey, JSON.stringify(items))
-  }, [authLoading, items, user])
+    if (!authLoading && !user && cartOwnerId === 'guest') localStorage.setItem(guestCartKey, JSON.stringify(items))
+  }, [authLoading, cartOwnerId, items, user])
+  useEffect(() => {
+    if (!authLoading && user && cartOwnerId === user.id) localStorage.setItem(userCartKey(user.id), JSON.stringify(items))
+  }, [authLoading, cartOwnerId, items, user])
   useEffect(() => {
     if (!authLoading && !user) localStorage.setItem(guestSavedKey, JSON.stringify(savedProductIds))
   }, [authLoading, savedProductIds, user])
 
-  const recover = () => { if (user) void loadUserState() }
+  const reportSyncError = (error: unknown) => console.error('Cart sync failed', error)
   const value = useMemo<CartContextValue>(() => ({
     items,
     savedProductIds,
@@ -85,7 +93,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const existing = current.find((item) => item.id === product.id)
         return existing ? current.map((item) => item.id === product.id ? { ...item, qty: Math.min(product.stock, item.qty + safeQuantity) } : item) : [...current, { ...product, qty: safeQuantity }]
       })
-      if (user) void apiClient.post(`/shopping/cart/${product.id}`, { quantity: safeQuantity }).catch(recover)
+      if (user) void apiClient.post(`/shopping/cart/${product.id}`, { quantity: safeQuantity }).catch(reportSyncError)
       setLastAdded(product)
       setDrawerOpen(true)
     },
@@ -94,32 +102,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!current) return
       const quantity = Math.max(1, Math.min(current.stock, current.qty + delta))
       setItems((rows) => rows.map((item) => item.id === id ? { ...item, qty: quantity } : item))
-      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(recover)
+      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(reportSyncError)
     },
     setItemQty: (id, requested) => {
       const current = items.find((item) => item.id === id)
       if (!current) return
       const quantity = Math.max(1, Math.min(current.stock, Math.floor(Number(requested) || 1)))
       setItems((rows) => rows.map((item) => item.id === id ? { ...item, qty: quantity } : item))
-      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(recover)
+      if (user) void apiClient.patch(`/shopping/cart/${id}`, { quantity }).catch(reportSyncError)
     },
     removeItem: (id) => {
       setItems((current) => current.filter((item) => item.id !== id))
-      if (user) void apiClient.delete(`/shopping/cart/${id}`).catch(recover)
+      if (user) void apiClient.delete(`/shopping/cart/${id}`).catch(reportSyncError)
     },
     clearCart: () => {
       setItems([]); setLastAdded(null); setDrawerOpen(false)
-      if (user) void apiClient.delete('/shopping/cart').catch(recover)
+      if (user) void apiClient.delete('/shopping/cart').catch(reportSyncError)
     },
     toggleSaved: (id) => {
       const saved = savedProductIds.includes(id)
       setSavedProductIds((current) => saved ? current.filter((item) => item !== id) : [...current, id])
-      if (user) void (saved ? apiClient.delete(`/shopping/saved/${id}`) : apiClient.put(`/shopping/saved/${id}`)).catch(recover)
+      if (user) void (saved ? apiClient.delete(`/shopping/saved/${id}`) : apiClient.put(`/shopping/saved/${id}`)).catch(reportSyncError)
     },
     clearLastAdded: () => setLastAdded(null),
     openCart: () => setDrawerOpen(true),
     closeCart: () => setDrawerOpen(false),
-  }), [drawerOpen, items, lastAdded, savedProductIds, user, loadUserState])
+  }), [drawerOpen, items, lastAdded, savedProductIds, user])
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
