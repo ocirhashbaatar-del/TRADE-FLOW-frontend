@@ -40,7 +40,7 @@ export default function Products() {
 
   return <div className="min-h-screen bg-[#edf5ef] pb-28 text-slate-950 dark:bg-[#07110e] dark:text-white">
     <section className="relative min-h-[680px] overflow-hidden bg-[#0a2a20] text-white sm:min-h-[70vh]">
-      {heroSlides.map((slide, index) => <img key={slide.image} src={assetUrl(slide.image)} alt={slide.title} className={`absolute inset-0 size-full object-cover object-[70%_center] brightness-110 transition duration-700 sm:object-center ${heroSlide === index ? 'scale-100 opacity-100' : 'scale-105 opacity-0'}`} />)}
+      {heroSlides.map((slide, index) => <img key={slide.image} src={assetUrl(slide.image)} alt={slide.title} className={`absolute left-0 top-0 h-[360px] w-full object-cover object-right-top brightness-110 transition duration-700 sm:h-auto sm:object-contain sm:object-top ${heroSlide === index ? 'scale-100 opacity-100' : 'scale-105 opacity-0'}`} />)}
       <div className="absolute inset-0 bg-gradient-to-t from-[#041a13] via-[#06261c]/80 to-[#073126]/10 sm:bg-gradient-to-r sm:from-[#06261c]/90 sm:via-[#073126]/50 sm:to-transparent" />
       <button type="button" onClick={() => setHeroSlide((heroSlide - 1 + heroSlides.length) % heroSlides.length)} className="absolute left-2 top-[34%] z-20 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/20 text-white shadow-xl backdrop-blur-xl transition hover:scale-110 hover:bg-white/25 sm:left-7 sm:top-1/2 sm:size-12" aria-label="Өмнөх banner"><ChevronLeft className="size-5 sm:size-6" /></button>
       <button type="button" onClick={() => setHeroSlide((heroSlide + 1) % heroSlides.length)} className="absolute right-2 top-[34%] z-20 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/20 text-white shadow-xl backdrop-blur-xl transition hover:scale-110 hover:bg-white/25 sm:right-7 sm:top-1/2 sm:size-12" aria-label="Дараагийн banner"><ChevronRight className="size-5 sm:size-6" /></button>
@@ -56,7 +56,7 @@ export default function Products() {
       </div>
     </section>
 
-    <main className="relative z-10 mx-3 -mt-7 rounded-t-[28px] border-x border-t border-emerald-950/[.07] bg-[#f8fbf8] px-3 pb-10 pt-8 shadow-[0_-20px_70px_rgba(4,45,32,.08)] sm:mx-4 sm:-mt-10 sm:rounded-t-[44px] sm:px-6 sm:pt-12 lg:mx-6 lg:px-6 dark:border-white/10 dark:bg-[#07110e]">
+    <main className="relative z-10 mx-auto -mt-7 max-w-[1380px] rounded-t-[28px] border-x border-t border-emerald-950/[.07] bg-[#f8fbf8] px-3 pb-10 pt-8 shadow-[0_-20px_70px_rgba(4,45,32,.08)] sm:-mt-10 sm:rounded-t-[44px] sm:px-6 sm:pt-12 lg:px-8 dark:border-white/10 dark:bg-[#07110e]">
       <div className="flex flex-col gap-6 rounded-[30px] border border-emerald-950/[.07] bg-white p-6 shadow-[0_14px_45px_rgba(13,66,46,.07)] sm:flex-row sm:items-center sm:justify-between sm:p-7 dark:border-white/10 dark:bg-white/[.045]">
         <div><div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.22em] text-emerald-600"><span className="size-2 rounded-full bg-emerald-500 ring-4 ring-emerald-100 dark:ring-emerald-400/10" />Манай дэлгүүр</div><h2 className="mt-3 text-3xl font-bold tracking-[-.045em] sm:text-4xl">Танд зориулсан бүтээгдэхүүнүүд</h2><p className="mt-2 text-sm text-slate-500"><strong className="text-emerald-700 dark:text-emerald-300">{visibleProducts.length}</strong> бүтээгдэхүүнээс сонголтоо хийгээрэй</p></div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
