@@ -50,8 +50,8 @@ export default function CheckoutPage() {
       window.location.assign(session.url)
     } catch (reason) {
       setSubmitting(false)
-      const status = (reason as { response?: { status?: number } }).response?.status
-      setError(status === 503 ? 'Stripe payment тохируулагдаагүй байна. STRIPE_SECRET_KEY оруулна уу.' : 'Захиалга эсвэл төлбөр үүсгэхэд алдаа гарлаа.')
+      const response = (reason as { response?: { status?: number; data?: { message?: string } } }).response
+      setError(response?.data?.message ?? (response?.status === 503 ? 'Stripe payment тохируулагдаагүй байна. STRIPE_SECRET_KEY оруулна уу.' : 'Захиалга эсвэл төлбөр үүсгэхэд алдаа гарлаа.'))
     }
   }
 
