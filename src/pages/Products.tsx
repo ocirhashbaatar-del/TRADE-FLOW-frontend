@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, Heart, Search, ShieldCheck, SlidersHorizontal, Sparkles, Truck } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ProductCard } from '@/components/ProductCard'
 import { EmptyState } from '@/components/common/empty-state'
@@ -27,6 +27,11 @@ export default function Products() {
   const [category, setCategory] = useState('all')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [heroSlide, setHeroSlide] = useState(0)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setHeroSlide((current) => (current + 1) % heroSlides.length), 5000)
+    return () => window.clearTimeout(timer)
+  }, [heroSlide])
 
   usePageTitle('Бүтээгдэхүүн — TradeFlow')
   const { data: products = [], isLoading } = useQuery({ queryKey: ['products', query], queryFn: () => repositories.marketplace.listProducts(query) })
