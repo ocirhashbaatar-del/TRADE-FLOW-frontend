@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { currency } from '@/utils/format'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { useCart } from '@/contexts/cart-context'
+import { useAuth } from '@/contexts/auth-context'
 
-function OrderSummary({ subtotal }: { subtotal: number }) {
+function OrderSummary({ subtotal, onCheckout, disabled }: { subtotal: number; onCheckout: () => void; disabled: boolean }) {
   return (
     <Card className="h-fit lg:sticky lg:top-24">
       <CardHeader>
@@ -31,10 +32,8 @@ function OrderSummary({ subtotal }: { subtotal: number }) {
             <span>{currency.format(subtotal * 1.08 + 180)}</span>
           </div>
         </div>
-        <Button asChild size="lg" className="mt-6 w-full">
-          <Link to="/checkout">
-            Төлбөр руу шилжих <ArrowRight className="size-4" />
-          </Link>
+        <Button size="lg" className="mt-6 w-full" onClick={onCheckout} disabled={disabled}>
+          Төлбөр руу шилжих <ArrowRight className="size-4" />
         </Button>
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-stone-400">
           <ShieldCheck className="size-4" /> Аюулгүй төлбөр
@@ -46,9 +45,18 @@ function OrderSummary({ subtotal }: { subtotal: number }) {
 
 export default function CartPage() {
   usePageTitle('Сагс')
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const { items, updateQty, setItemQty, removeItem } = useCart()
 
   const subtotal = items.reduce((s, p) => s + p.price * p.qty, 0)
+  const handleCheckout = () => {
+    if (!user) {
+      navigate('/auth/login', { state: { from: '/checkout' } })
+      return
+    }
+    navigate('/checkout')
+  }
 
   return (
     <div className="mx-auto max-w-[1300px] px-4 py-12 sm:px-6 lg:px-8">
@@ -102,7 +110,7 @@ export default function CartPage() {
             )}
           </CardContent>
         </Card>
-        <OrderSummary subtotal={subtotal} />
+        <OrderSummary subtotal={subtotal} onCheckout={handleCheckout} disabled={!user || !items.length} />
       </div>
     </div>
   )

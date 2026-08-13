@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LockKeyhole, MapPin, PackageCheck, ShieldCheck, Truck } from 'lucide-react'
 import { apiClient } from '@/api/client'
@@ -27,20 +27,22 @@ export default function CheckoutPage() {
   const delivery = items.length ? 180 : 0
   usePageTitle(isB2B ? 'B2B захиалга — TradeFlow' : 'Stripe төлбөр — TradeFlow')
 
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth/login', { replace: true, state: { from: '/checkout' } })
+    }
+  }, [navigate, user])
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!items.length) return
     if (mixedChannels) { setError('B2B болон жижиглэнгийн барааг тусдаа захиална уу.'); return }
+    if (!user) {
+      navigate('/auth/login', { replace: true, state: { from: '/checkout' } })
+      return
+    }
     setSubmitting(true); setError('')
     try {
-      if (!user && !localStorage.getItem('tradeflow-token')) {
-        let guestId = localStorage.getItem('tradeflow-guest-id')
-        if (!guestId) { guestId = crypto.randomUUID(); localStorage.setItem('tradeflow-guest-id', guestId) }
-        const auth = (await apiClient.post<{ token: string; refreshToken?: string; user: unknown }>('/auth/guest', { guestId })).data
-        localStorage.setItem('tradeflow-token', auth.token); localStorage.setItem('tradeflow-user', JSON.stringify(auth.user))
-        if (auth.refreshToken) localStorage.setItem('tradeflow-refresh-token', auth.refreshToken)
-        window.dispatchEvent(new Event('tradeflow-auth-changed'))
-      }
       const data = new FormData(event.currentTarget)
       const order = (await apiClient.post<{ id: string }>('/orders', { items: items.map((item) => ({ productId: item.productId ?? item.id, variantId: item.variantId, quantity: item.qty })), recipientName: data.get('recipientName'), phone: data.get('phone'), city: data.get('city'), district: data.get('district'), address: data.get('address'), couponCode: data.get('couponCode') || undefined, deliveryZoneId: data.get('deliveryZoneId') || undefined, channel: isB2B ? 'B2B' : 'B2C' })).data
       if (isB2B) { clearCart(); navigate('/b2b'); return }

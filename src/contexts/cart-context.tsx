@@ -32,6 +32,21 @@ const readGuest = <T,>(key: string, fallback: T): T => {
   try { return JSON.parse(localStorage.getItem(key) ?? '') as T }
   catch { return fallback }
 }
+const mergeCartItems = (base: CartItem[], incoming: CartItem[]) => {
+  const merged = new Map<string, CartItem>()
+  const registerItem = (item: CartItem) => {
+    const key = item.variant ? `${item.productId ?? item.id}:${item.variant.id}` : (item.productId ?? item.id)
+    const existing = merged.get(key)
+    if (existing) {
+      merged.set(key, { ...existing, qty: existing.qty + item.qty, price: existing.price })
+      return
+    }
+    merged.set(key, { ...item, id: key, productId: item.productId ?? item.id, variantId: item.variant?.id, variant: item.variant })
+  }
+  base.forEach(registerItem)
+  incoming.forEach(registerItem)
+  return Array.from(merged.values())
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth()
@@ -50,8 +65,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!user) return
     const { data } = await apiClient.get<ShoppingState>('/shopping')
     const localCart = readGuest<CartItem[]>(userCartKey(user.id), [])
-    setItems(data.cart.length > 0 ? data.cart : localCart)
+    const mergedCart = mergeCartItems(data.cart, localCart)
+    setItems(mergedCart)
     setSavedProductIds(data.savedProductIds)
+    localStorage.setItem(userCartKey(user.id), JSON.stringify(mergedCart))
+    localStorage.removeItem(guestCartKey)
   }, [user])
 
   useEffect(() => {
@@ -59,19 +77,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setLastAdded(null)
     setDrawerOpen(false)
     if (user) {
-      setItems(readGuest<CartItem[]>(userCartKey(user.id), []))
+      const userCart = readGuest<CartItem[]>(userCartKey(user.id), [])
+      setItems(userCart)
       setCartOwnerId(user.id)
       setSavedProductIds([])
       void loadUserState().catch(() => undefined)
     } else {
-      setItems(readGuest<CartItem[]>(guestCartKey, []))
+      setItems([])
       setCartOwnerId('guest')
-      setSavedProductIds(readGuest<string[]>(guestSavedKey, []))
+      setSavedProductIds([])
+      localStorage.removeItem(guestCartKey)
+      localStorage.removeItem(guestSavedKey)
     }
   }, [authLoading, loadUserState, user])
 
   useEffect(() => {
-    if (!authLoading && !user && cartOwnerId === 'guest') localStorage.setItem(guestCartKey, JSON.stringify(items))
+    if (!authLoading && !user && cartOwnerId === 'guest') localStorage.removeItem(guestCartKey)
   }, [authLoading, cartOwnerId, items, user])
   useEffect(() => {
     if (!authLoading && user && cartOwnerId === user.id) localStorage.setItem(userCartKey(user.id), JSON.stringify(items))
@@ -88,6 +109,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     lastAdded,
     drawerOpen,
     addItem: (product, quantity = 1, variant) => {
+      if (!user) return
       const available = variant?.stock ?? product.stock
       const safeQuantity = Math.max(1, Math.min(available, Math.floor(quantity)))
       const itemId = variant ? `${product.id}:${variant.id}` : product.id
