@@ -28,8 +28,8 @@ export default function ProductDetail() {
   }
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ['product', id, qty, channel, selectedVariantId],
-    queryFn: () => repositories.marketplace.getProduct(id, qty, channel, selectedVariantId),
+    queryKey: ['product', id, channel],
+    queryFn: () => repositories.marketplace.getProduct(id, 1, channel),
   })
 
   const { data: catalog = [] } = useQuery({
@@ -63,7 +63,7 @@ export default function ProductDetail() {
         <ArrowLeft className="size-4" /> Буцах
       </Link>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2">
+      <div className="mt-6 grid gap-8 rounded-[32px] border border-emerald-950/[.08] bg-white p-4 shadow-[0_20px_70px_rgba(13,66,46,.08)] sm:p-7 lg:grid-cols-[1.05fr_.95fr] lg:gap-12 dark:border-white/10 dark:bg-white/[.03]">
         {/* Image */}
         <div>
           <div className="overflow-hidden rounded-3xl bg-stone-100">
@@ -76,6 +76,7 @@ export default function ProductDetail() {
           <div className="mt-4 grid grid-cols-4 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <button
+                type="button"
                 key={i}
                 className={`overflow-hidden rounded-xl border-2 ${i === 0 ? 'border-brand-500' : 'border-transparent'}`}
               >
@@ -133,14 +134,16 @@ export default function ProductDetail() {
               </div>
               <div className="flex items-center rounded-xl border border-stone-200 dark:border-stone-700">
                 <Button
+                  type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  disabled={qty <= 1}
+                  onClick={() => { setQty((value) => Math.max(1, value - 1)); setAdded(false) }}
                 >
                   <Minus className="size-4" />
                 </Button>
                 <input type="number" min={1} max={availableStock} value={qty} onChange={(event) => setQty(Math.max(1, Math.min(availableStock, Math.floor(Number(event.target.value) || 1))))} className="h-10 w-16 border-x border-stone-200 bg-transparent text-center font-semibold outline-none dark:border-stone-700" aria-label="Худалдан авах тоо" />
-                <Button variant="ghost" size="icon" disabled={qty >= availableStock} onClick={() => setQty(Math.min(availableStock, qty + 1))}>
+                <Button type="button" variant="ghost" size="icon" disabled={qty >= availableStock} onClick={() => { setQty((value) => Math.min(availableStock, value + 1)); setAdded(false) }}>
                   <Plus className="size-4" />
                 </Button>
               </div>
