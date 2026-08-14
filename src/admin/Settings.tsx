@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { useTheme } from '@/contexts/theme-context'
+import { apiClient } from '@/api/client'
 
 type Settings = {
   company: string
@@ -31,7 +32,7 @@ export default function AdminSettings() {
   })
 
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => { setSaved(false); setSettings((current) => ({ ...current, [key]: value })) }
-  const save = () => { localStorage.setItem('tradeflow-admin-settings', JSON.stringify(settings)); setSaved(true) }
+  const save = async () => { localStorage.setItem('tradeflow-admin-settings', JSON.stringify(settings)); await Promise.all([{ type: 'ORDER', inApp: settings.orderNotifications }, { type: 'SYSTEM', inApp: settings.sellerNotifications }, { type: 'INVENTORY', inApp: settings.lowStockNotifications }].map((item) => apiClient.put('/notifications/preferences', { ...item, email: false, sms: false }))); setSaved(true) }
 
   return <>
     <PageHeader eyebrow="Систем" title="Тохиргоо" description="Байгууллагын мэдээлэл, мэдэгдэл болон системийн харагдацыг удирдана." actions={<Button onClick={save}><Save className="size-4" />Хадгалах</Button>} />

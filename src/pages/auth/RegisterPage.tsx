@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Mail, Phone } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { useAuth } from '@/contexts/auth-context'
 import { usePageTitle } from '@/hooks/use-page-title'
+import { resolveAuthRedirect } from '@/utils/auth-redirect'
 
 type AuthResult = { token: string; refreshToken: string; user: unknown }
 export default function RegisterPage() {
@@ -15,10 +16,11 @@ export default function RegisterPage() {
   const [mode, setMode] = useState<'email' | 'phone'>('phone')
   const [name, setName] = useState(''), [phone, setPhone] = useState(''), [otp, setOtp] = useState(''), [challengeId, setChallengeId] = useState('')
   const [loading, setLoading] = useState(false), [error, setError] = useState('')
-  const { register: emailRegister } = useAuth(); const navigate = useNavigate()
-  const saveAuth = (result: AuthResult) => { localStorage.setItem('tradeflow-token', result.token); localStorage.setItem('tradeflow-refresh-token', result.refreshToken); localStorage.setItem('tradeflow-user', JSON.stringify(result.user)); window.dispatchEvent(new Event('tradeflow-auth-changed')); navigate('/products', { replace: true }) }
+  const { register: emailRegister } = useAuth(); const navigate = useNavigate(); const location = useLocation()
+  const finish = () => { const from = (location.state as { from?: unknown } | null)?.from; navigate(resolveAuthRedirect(from), { replace: true }) }
+  const saveAuth = (result: AuthResult) => { localStorage.setItem('tradeflow-token', result.token); localStorage.setItem('tradeflow-refresh-token', result.refreshToken); localStorage.setItem('tradeflow-user', JSON.stringify(result.user)); window.dispatchEvent(new Event('tradeflow-auth-changed')); finish() }
   const registerPhone = async () => { setLoading(true); setError(''); try { if (!challengeId) { const result = (await apiClient.post<{ challengeId: string; devCode?: string }>('/auth/phone/register/request', { name, phone })).data; setChallengeId(result.challengeId); if (result.devCode) setOtp(result.devCode) } else saveAuth((await apiClient.post<AuthResult>('/auth/phone/register/verify', { name, challengeId, code: otp })).data) } catch (reason: any) { setError(reason?.response?.data?.message ?? 'Утасны OTP бүртгэл амжилтгүй.') } finally { setLoading(false) } }
-  const registerEmail = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setLoading(true); setError(''); const data = new FormData(event.currentTarget), password = String(data.get('password')); try { if (password !== String(data.get('confirmPassword'))) throw new Error('Нууц үг таарахгүй байна.'); await emailRegister({ name: String(data.get('name')), email: String(data.get('email')), password }); navigate('/products', { replace: true }) } catch (reason: any) { setError(reason?.response?.data?.message ?? reason?.message ?? 'Бүртгэл амжилтгүй.') } finally { setLoading(false) } }
+  const registerEmail = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setLoading(true); setError(''); const data = new FormData(event.currentTarget), password = String(data.get('password')); try { if (password !== String(data.get('confirmPassword'))) throw new Error('Нууц үг таарахгүй байна.'); await emailRegister({ name: String(data.get('name')), email: String(data.get('email')), password }); finish() } catch (reason: any) { setError(reason?.response?.data?.message ?? reason?.message ?? 'Бүртгэл амжилтгүй.') } finally { setLoading(false) } }
   const phoneDisabled = Boolean(name.trim().length < 2 || (!challengeId && phone.length < 8) || (challengeId && otp.length !== 6))
   return <div className="min-h-[calc(100vh-72px)] bg-[#fffaf2] px-4 py-10 dark:bg-[#17120c]"><main className="mx-auto max-w-xl rounded-[32px] bg-white p-7 shadow-xl sm:p-12 dark:bg-[#211a12]"><h1 className="text-4xl font-black">Бүртгэл үүсгэх</h1><p className="mt-2 text-slate-500">Бүртгүүлэх аргаа сонгоно уу.</p>
     <div className="mt-7 grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-white/5">

@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { currency } from '@/utils/format'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { useCart } from '@/contexts/cart-context'
+import { useSeo } from '@/hooks/use-seo'
 
 export default function ProductDetail() {
   const { id = 'p-1' } = useParams()
@@ -38,6 +39,7 @@ export default function ProductDetail() {
   })
 
   usePageTitle(product?.name ?? 'Бүтээгдэхүүн')
+  useSeo({title:product?`${product.name} — TradeFlow`:'Бүтээгдэхүүн — TradeFlow',description:product?.description??'TradeFlow бүтээгдэхүүний мэдээлэл',canonical:`${window.location.origin}/products/${id}`,image:product?.image,jsonLd:product?{'@context':'https://schema.org','@type':'Product',name:product.name,description:product.description,image:[product.image],offers:{'@type':'Offer',price:product.price,priceCurrency:'MNT',availability:product.stock>0?'https://schema.org/InStock':'https://schema.org/OutOfStock'}}:undefined})
 
   if (isLoading) {
     return (

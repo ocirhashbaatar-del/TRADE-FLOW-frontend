@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#64748b' }}
-                  tickFormatter={(value) => `$${value / 1000}k`}
+                  tickFormatter={(value) => `₮${value / 1000}k`}
                 />
                 <Tooltip
                   contentStyle={{

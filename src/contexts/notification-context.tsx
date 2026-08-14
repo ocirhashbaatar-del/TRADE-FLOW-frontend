@@ -20,7 +20,7 @@ const toNotificationItem = (item: ApiNotification): NotificationItem => ({
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
-  const { lastEvent } = useRealtime()
+  const { lastEvent, connected } = useRealtime()
   const { user } = useAuth()
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       if (active) setNotifications(data.map(toNotificationItem))
     }).catch(() => undefined)
     return () => { active = false }
-  }, [user])
+  }, [user, connected])
 
   useEffect(() => {
     if (!lastEvent) return

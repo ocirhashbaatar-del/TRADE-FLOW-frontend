@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/auth-context'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
+import { resolveAuthRedirect } from '@/utils/auth-redirect'
 
 type AuthResult = { token: string; refreshToken: string; user: unknown }
 export default function LoginPage() {
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'email' | 'phone'>('email'), [error, setError] = useState(''), [loading, setLoading] = useState(false)
   const [phone, setPhone] = useState(''), [otp, setOtp] = useState(''), [challengeId, setChallengeId] = useState('')
   const { login } = useAuth(); const navigate = useNavigate(); const location = useLocation()
-  const finish = () => { const from = (location.state as { from?: unknown } | null)?.from; navigate(typeof from === 'string' && from.startsWith('/') && from !== '/' ? from : '/products', { replace: true }) }
+  const finish = () => { const from = (location.state as { from?: unknown } | null)?.from; navigate(resolveAuthRedirect(from), { replace: true }) }
   const saveAuth = (result: AuthResult) => { localStorage.setItem('tradeflow-token', result.token); localStorage.setItem('tradeflow-refresh-token', result.refreshToken); localStorage.setItem('tradeflow-user', JSON.stringify(result.user)); window.dispatchEvent(new Event('tradeflow-auth-changed')); finish() }
   const emailLogin = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setLoading(true); setError(''); const data = new FormData(event.currentTarget); try { await login({ email: String(data.get('email')), password: String(data.get('password')) }); finish() } catch (reason: any) { setError(reason?.response?.data?.message ?? 'Имэйл эсвэл нууц үг буруу.') } finally { setLoading(false) } }
   const phoneLogin = async () => { setLoading(true); setError(''); try { if (!challengeId) { const result = (await apiClient.post<{ challengeId: string; devCode?: string }>('/auth/phone/request', { phone })).data; setChallengeId(result.challengeId); if (result.devCode) setOtp(result.devCode) } else saveAuth((await apiClient.post<AuthResult>('/auth/phone/verify', { challengeId, code: otp })).data) } catch (reason: any) { setError(reason?.response?.data?.message ?? 'Утасны OTP нэвтрэлт амжилтгүй.') } finally { setLoading(false) } }
