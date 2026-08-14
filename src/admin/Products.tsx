@@ -129,6 +129,8 @@ export default function AdminProducts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [imageReady, setImageReady] = useState(false);
 
   const products = useQuery({
     queryKey: ["managed-products", page, appliedSearch],
@@ -171,6 +173,7 @@ export default function AdminProducts() {
         ? apiClient.patch(`/products/${editing.id}`, payload)
         : apiClient.post("/products", payload);
     },
+    onMutate: () => setSaveError(""),
     onSuccess: async () => {
       setMessage(
         editing
@@ -180,22 +183,31 @@ export default function AdminProducts() {
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyForm);
+      setImageReady(false);
       await refresh();
     },
     onError: (error: any) =>
-      setMessage(
+      setSaveError(
         error?.response?.data?.message ?? "Бараа хадгалахад алдаа гарлаа.",
       ),
   });
   const uploadImage = useMutation({
     mutationFn: async (file: File) => {
-      const body = new FormData();
-      body.append("image", file);
-      return (await apiClient.post<UploadedAsset>("/uploads", body)).data;
+      return (await apiClient.post<UploadedAsset>("/uploads", file, {
+        headers: {
+          "Content-Type": file.type,
+          "X-File-Name": encodeURIComponent(file.name),
+        },
+      })).data;
     },
-    onMutate: () => setUploadError(""),
-    onSuccess: (asset) =>
-      setForm((current) => ({ ...current, image: asset.url })),
+    onMutate: () => { setUploadError(""); setSaveError(""); setImageReady(false) },
+    onSuccess: (asset) => {
+      setForm((current) => {
+        const images = current.images.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
+        return { ...current, image: asset.url, images: [asset.url, ...images.filter((url) => url !== asset.url)].join("\n") }
+      })
+      setImageReady(true)
+    },
     onError: (error: any) =>
       setUploadError(
         error?.response?.data?.message ?? "Зураг upload хийхэд алдаа гарлаа.",
@@ -210,6 +222,8 @@ export default function AdminProducts() {
     setForm(emptyForm);
     setMessage("");
     setUploadError("");
+    setSaveError("");
+    setImageReady(false);
     setDialogOpen(true);
   };
   const openEdit = (row: ManagedProduct) => {
@@ -238,6 +252,8 @@ export default function AdminProducts() {
     });
     setMessage("");
     setUploadError("");
+    setSaveError("");
+    setImageReady(false);
     setDialogOpen(true);
   };
   const submit = (event: FormEvent) => {
@@ -245,7 +261,7 @@ export default function AdminProducts() {
     setMessage("");
     save.mutate();
   };
-  const rows = products.data?.data ?? [];
+  const rows = useMemo(() => products.data?.data ?? [], [products.data?.data]);
   const stats = useMemo(
     () => ({
       total: products.data?.total ?? 0,
@@ -444,7 +460,7 @@ export default function AdminProducts() {
                         onClick={() => {
                           if (
                             confirm(
-                              `\"${row.name}\" барааг идэвхгүй болгох уу?`,
+                              `"${row.name}" барааг идэвхгүй болгох уу?`,
                             )
                           )
                             remove.mutate(row.id);
@@ -575,6 +591,7 @@ export default function AdminProducts() {
                 />
               </label>
               {uploadError && <p className="text-xs font-semibold text-rose-600">{uploadError}</p>}
+              {imageReady && <p className="rounded-xl bg-emerald-50 p-3 text-xs font-semibold text-emerald-700">Зураг бэлэн боллоо. Доорх “Бараа нэмэх” товчийг дарж бүртгэлийг дуусгана уу.</p>}
               {form.image && (
                 <div className="overflow-hidden rounded-2xl border bg-slate-50">
                   <img src={form.image} alt="Сайжруулсан зургийн preview" className="h-36 w-full object-contain" />
@@ -612,6 +629,7 @@ export default function AdminProducts() {
               Идэвхтэй
             </label>
             <div className="flex justify-end gap-2 sm:col-span-2">
+              {saveError && <div className="mr-auto w-full rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-semibold text-rose-700">{saveError}</div>}
               <Button
                 type="button"
                 variant="secondary"
@@ -619,7 +637,7 @@ export default function AdminProducts() {
               >
                 Болих
               </Button>
-              <Button type="submit" disabled={uploadImage.isPending} loading={save.isPending}>
+              <Button type="submit" disabled={uploadImage.isPending || save.isPending} loading={save.isPending}>
                 {editing ? "Хадгалах" : "Бараа нэмэх"}
               </Button>
             </div>

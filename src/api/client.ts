@@ -5,12 +5,14 @@ const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/
 export const apiClient = axios.create({
   baseURL,
   timeout: 15000,
-  headers: { 'Content-Type': 'application/json' },
 })
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('tradeflow-token')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  // Never force JSON content-type onto FormData. The browser must generate the
+  // multipart boundary itself, including when Axios retries after token refresh.
+  if (config.data instanceof FormData) config.headers.delete('Content-Type')
   return config
 })
 
